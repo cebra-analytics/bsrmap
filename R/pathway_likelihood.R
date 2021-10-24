@@ -24,6 +24,9 @@
 #'   \url{https://github.com/jscamac/edmaps}.
 #' @note Generalized modified version of
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}::arrivals_by_*}.
+#' @include calc_EE.R
+#' @include calc_pathway_pr.R
+#' @include combine_layers.R
 #' @export
 pathway_likelihood <- function(pathway_layers,
                                leakage_rate_ci,

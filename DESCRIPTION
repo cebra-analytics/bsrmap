@@ -20,3 +20,13 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
+Collate: 
+    'equivalent_crs.R'
+    'aggregate_layer.R'
+    'conform_layer.R'
+    'aggregate_categories.R'
+    'calc_EE.R'
+    'calc_pathway_pr.R'
+    'combine_layers.R'
+    'distance_weight_layer.R'
+    'pathway_likelihood.R'

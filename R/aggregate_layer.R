@@ -21,6 +21,7 @@
 #'   \url{https://github.com/jscamac/edmaps}.
 #' @note Informed by various functions in
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}}.
+#' @include equivalent_crs.R
 #' @export
 aggregate_layer <- function(x, y,
                             use_fun = c("mean", "max", "min",

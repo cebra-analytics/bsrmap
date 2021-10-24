@@ -29,6 +29,8 @@
 #'   \url{https://github.com/jscamac/edmaps}.
 #' @note Informed by various functions in
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}}.
+#' @include aggregate_layer.R
+#' @include conform_layer.R
 #' @export
 aggregate_categories <- function(x, y,
                                  categories = NULL,
@@ -79,7 +81,7 @@ aggregate_categories.SpatRaster <- function(x, y,
                                 use_fun = ifelse(binarise, "max", "mean"))
 
   # Conform
-  x_selected <- conform_layer <- function(x_selected, y)
+  x_selected <- conform_layer(x_selected, y)
 
   return(x_selected)
 }

@@ -22,6 +22,8 @@
 #'   \url{https://github.com/jscamac/edmaps}.
 #' @note Informed by various functions in
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}}.
+#' @include aggregate_layer.R
+#' @include equivalent_crs.R
 #' @export
 conform_layer <- function(x, y,
                           normalize = FALSE,
