@@ -11,7 +11,7 @@ aggregate_categories(
   y,
   categories = NULL,
   selected = NULL,
-  binarise = TRUE,
+  binarize = TRUE,
   ...
 )
 
@@ -20,7 +20,7 @@ aggregate_categories(
   y,
   categories = NULL,
   selected = NULL,
-  binarise = TRUE,
+  binarize = TRUE,
   ...
 )
 
@@ -29,7 +29,7 @@ aggregate_categories(
   y,
   categories = NULL,
   selected = NULL,
-  binarise = TRUE,
+  binarize = TRUE,
   ...
 )
 }
@@ -49,11 +49,11 @@ calculating unique cell values (slower).}
 \item{selected}{A numeric vector of all possible category values. If this
 is left \code{NULL} (default) no categories will be selected.}
 
-\item{...}{Additional parameters (unused).}
-
 \item{binarize}{Logical indicating if the aggregated cells should be
 binarized, i.e. set to 1 for cells containing selected category values.
 Default = TRUE.}
+
+\item{...}{Additional parameters (unused).}
 }
 \value{
 A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
