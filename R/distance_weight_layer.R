@@ -42,7 +42,6 @@ distance_weight_layer <- function(x, y,
 distance_weight_layer.Raster <- function(x, y,
                                          beta = log(0.5)/200,
                                          weights = NULL, ...) {
-  message("m1") ####
   # Call the terra version of the function
   distance_weight_layer(terra::rast(x), y,
                         beta = beta,
@@ -70,21 +69,18 @@ distance_weight_layer.SpatRaster <- function(x, y,
     stop("Weights should have the same number of rows as y.", call. = FALSE)
   }
 
-  message("m2") ####
   # Conform y coordinates CRS with x
   y <- terra::crds(terra::project(terra::vect(y, crs = "EPSG:4326"), x))
 
   # Are weights present?
   if (is.null(weights) || all(weights[1] == weights)) {
 
-    message("m3") ####
     # Calculate cell distances from point (features) y
     # Note: currently implemented with raster::distanceFromPoints
     #       until/if terra::distance is fixed...
     suppressWarnings(d_rast <- terra::rast(
       raster::distanceFromPoints(raster::raster(x), y)) + x*0)
 
-    message("m4") ####
     # Calculate distance weights
     return(exp(d_rast/(1000/beta)))
 
@@ -93,22 +89,16 @@ distance_weight_layer.SpatRaster <- function(x, y,
     # Normalize weights
     weights <- weights/max(weights)
 
-    message("m5") ####
     # Calculate 'weighted' distance weights
     weight_rast <-  x*0
-    message("m6") ####
     w <- terra::values(weight_rast)
-    message("m7") ####
     suppressWarnings(x_rast <- raster::raster(x))
-    message("m8") ####
     for (i in 1:nrow(y)) {
       d <- raster::values(raster::distanceFromPoints(x_rast, y[i, ]))
       w <- pmax(w, exp(d/(1000/beta))*weights[i])
     }
-    message("m9") ####
     terra::values(weight_rast) <- w
 
-    message("m10") ####
     return(weight_rast)
   }
 }
