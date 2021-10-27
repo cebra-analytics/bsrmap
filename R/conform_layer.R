@@ -38,7 +38,9 @@ conform_layer.Raster <- function(x, y,
                                  binarize = FALSE, ...) {
 
   # Call the terra version of the function
-  conform_layer(terra::rast(x), y, normalize, binarize, ...)
+  conform_layer(terra::rast(x), y,
+                normalize = normalize,
+                binarize = binarize, ...)
 }
 
 #' @name conform_layer

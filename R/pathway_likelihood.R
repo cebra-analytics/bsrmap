@@ -45,7 +45,7 @@ pathway_likelihood.Raster <- function(pathway_layers,
   # Call the terra version of the function
   pathway_likelihood(terra::rast(pathway_layers),
                      leakage_rate_ci, establishment_rate_ci,
-                     confidence, ...)
+                     confidence = confidence, ...)
 }
 
 #' @name pathway_likelihood

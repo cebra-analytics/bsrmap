@@ -36,7 +36,8 @@ aggregate_layer.Raster <- function(x, y,
                                                "median", "sum", "modal"),
                                    ...) {
   # Call the terra version of the function
-  aggregate_layer(terra::rast(x), y, use_fun, ...)
+  aggregate_layer(terra::rast(x), y,
+                  use_fun = use_fun, ...)
 }
 
 #' @name aggregate_layer

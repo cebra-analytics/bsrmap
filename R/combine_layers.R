@@ -31,7 +31,9 @@ combine_layers.Raster <- function(x,
                                   binarize = FALSE, ...) {
 
   # Call the terra version of the function
-  combine_layers(terra::rast(x), use_fun, binarize, ...)
+  combine_layers(terra::rast(x),
+                 use_fun = use_fun,
+                 binarize = binarize, ...)
 }
 
 #' @name combine_layers
