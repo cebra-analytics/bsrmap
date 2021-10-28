@@ -40,7 +40,8 @@ object representing the spatial layers to combine.}
 \item{use_fun}{One of \code{"prod"}, \code{"sum"}, or \code{"union"}.}
 
 \item{na.rm}{Logical indicating whether or not to ignore \code{"NA"} values
-when applying the combination function (\code{"use_fun"}).}
+when applying the combination function (\code{"use_fun"}). Default =
+\code{FALSE}.}
 
 \item{binarize}{Logical indicating if the combined cells should be
 binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.}

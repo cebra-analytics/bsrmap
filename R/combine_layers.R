@@ -7,7 +7,8 @@
 #'   object representing the spatial layers to combine.
 #' @param use_fun One of \code{"prod"}, \code{"sum"}, or \code{"union"}.
 #' @param na.rm Logical indicating whether or not to ignore \code{"NA"} values
-#'   when applying the combination function (\code{"use_fun"}).
+#'   when applying the combination function (\code{"use_fun"}). Default =
+#'   \code{FALSE}.
 #' @param binarize Logical indicating if the combined cells should be
 #'   binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
