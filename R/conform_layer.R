@@ -78,7 +78,8 @@ conform_layer.SpatRaster <- function(x, y,
   # Conform to non-NA cells when present
   if (!any(aggregation_factor > 1) && length(terra::unique(y))) {
     message("Conforming to non-NA values ...")
-    x <- x + y*0
+    x <- combine_layers(terra::rast(list(x, y*0)),
+                        use_fun = "sum", na.rm = TRUE)
   }
 
   # Normalize when required
