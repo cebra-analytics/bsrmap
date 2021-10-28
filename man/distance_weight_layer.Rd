@@ -36,18 +36,20 @@ distance_weight_layer(
 \arguments{
 \item{x}{A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 object representing the spatial configuration (template) for calculating
-the distance weight layer.}
+the distance weight layer from points \code{y}, or a for a pre-calculated
+distance layer (assumed when \code{y} is missing).}
 
 \item{y}{Point (feature) data as a \code{data.frame} (or \code{matrix})
 with WGS84 \emph{lon} and \emph{lat} columns.}
 
 \item{beta}{Numeric parameter passed to the exponential function:
 \code{exp(distance/(1000/beta))}, which transforms cell-to-nearest-point
-distances (m) to distance-weighted cell values.To generate a distribution
-that ensures a proportion \emph{p} of a pathway likelihood is distributed
-within distance \emph{d} of the nearest point (feature), specify
-\code{beta=log(p)/d} (e.g. to have 50\% of the likelihood distributed
-within 200 km of a point (feature), use default: \code{log(0.5)/200}).}
+or pre-calculated distances (m) to distance-weighted cell values. To
+generate a distribution that ensures a proportion \emph{p} of a pathway
+likelihood is distributed within distance of the nearest point (feature)
+or pre-calculated distance \emph{d}, specify \code{beta=log(p)/d} (e.g.
+to have 50\% of the likelihood distributed within 200 km use default:
+\code{log(0.5)/200}).}
 
 \item{weights}{Optional (default is none) numeric vector of weights for
 each point (feature) such that the distance-weighted cell values will be
@@ -65,8 +67,9 @@ A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
 }
 \description{
 Calculates a distance-weighted spatial layer based on the proximity of each
-cell to a series of points (features). Each cell is weighted via a
-negative exponential function applied to the distance of the nearest point.
+cell to a series of points (features), or via a pre-calculated distance
+layer. Each cell is weighted via a negative exponential function applied to
+the distance of the nearest point or pre-calculated distances.
 }
 \note{
 Generalized modified version of corresponding distance-weight

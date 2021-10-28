@@ -1,21 +1,24 @@
 #' Calculate a distance weight layer
 #'
 #' Calculates a distance-weighted spatial layer based on the proximity of each
-#' cell to a series of points (features). Each cell is weighted via a
-#' negative exponential function applied to the distance of the nearest point.
+#' cell to a series of points (features), or via a pre-calculated distance
+#' layer. Each cell is weighted via a negative exponential function applied to
+#' the distance of the nearest point or pre-calculated distances.
 #'
 #' @param x A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 #'   object representing the spatial configuration (template) for calculating
-#'   the distance weight layer.
+#'   the distance weight layer from points \code{y}, or a for a pre-calculated
+#'   distance layer (assumed when \code{y} is missing).
 #' @param y Point (feature) data as a \code{data.frame} (or \code{matrix})
 #'   with WGS84 \emph{lon} and \emph{lat} columns.
 #' @param beta Numeric parameter passed to the exponential function:
 #'   \code{exp(distance/(1000/beta))}, which transforms cell-to-nearest-point
-#'   distances (m) to distance-weighted cell values.To generate a distribution
-#'   that ensures a proportion \emph{p} of a pathway likelihood is distributed
-#'   within distance \emph{d} of the nearest point (feature), specify
-#'   \code{beta=log(p)/d} (e.g. to have 50% of the likelihood distributed
-#'   within 200 km of a point (feature), use default: \code{log(0.5)/200}).
+#'   or pre-calculated distances (m) to distance-weighted cell values. To
+#'   generate a distribution that ensures a proportion \emph{p} of a pathway
+#'   likelihood is distributed within distance of the nearest point (feature)
+#'   or pre-calculated distance \emph{d}, specify \code{beta=log(p)/d} (e.g.
+#'   to have 50% of the likelihood distributed within 200 km use default:
+#'   \code{log(0.5)/200}).
 #' @param weights Optional (default is none) numeric vector of weights for
 #'   each point (feature) such that the distance-weighted cell values will be
 #'   additionally proportionally weighted. Thus the exponential function
@@ -58,33 +61,42 @@ distance_weight_layer.SpatRaster <- function(x, y,
                                              beta = log(0.5)/200,
                                              weights = NULL,
                                              filename = "", ...) {
-  # Check points (features) y
-  y <- as.data.frame(y)
-  if (ncol(y) < 2) {
-    stop("Point (features) y data should have at least 2 columns.",
-         call. = FALSE)
-  }
-  if (!all(c("lon", "lat") %in% names(y))) {
-    stop("Point (features) y data coordinates should be 'lon' and 'lat'.",
-         call. = FALSE)
-  }
+  if (!missing(y)) {
 
-  # Check weights - should have the same number of rows as y
-  if (is.numeric(weights) && length(weights) != nrow(y)) {
-    stop("Weights should have the same number of rows as y.", call. = FALSE)
-  }
+    # Check points (features) y
+    y <- as.data.frame(y)
+    if (ncol(y) < 2) {
+      stop("Point (features) y data should have at least 2 columns.",
+           call. = FALSE)
+    }
+    if (!all(c("lon", "lat") %in% names(y))) {
+      stop("Point (features) y data coordinates should be 'lon' and 'lat'.",
+           call. = FALSE)
+    }
 
-  # Conform y coordinates CRS with x
-  y <- terra::crds(terra::project(terra::vect(y, crs = "EPSG:4326"), x))
+    # Check weights - should have the same number of rows as y
+    if (is.numeric(weights) && length(weights) != nrow(y)) {
+      stop("Weights should have the same number of rows as y.", call. = FALSE)
+    }
+
+    # Conform y coordinates CRS with x
+    y <- terra::crds(terra::project(terra::vect(y, crs = "EPSG:4326"), x))
+  }
 
   # Are weights present?
-  if (is.null(weights) || all(weights[1] == weights)) {
+  if (missing(y) || is.null(weights) || all(weights[1] == weights)) {
 
-    # Calculate cell distances from point (features) y
-    # Note: currently implemented with raster::distanceFromPoints
-    #       until/if terra::distance is fixed...
-    suppressWarnings(d_rast <- terra::rast(
-      raster::distanceFromPoints(raster::raster(x), y)) + x*0)
+    if (!missing(y)) {
+
+      # Calculate cell distances from point (features) y
+      # Note: currently implemented with raster::distanceFromPoints
+      #       until/if terra::distance is fixed...
+      suppressWarnings(d_rast <- terra::rast(
+        raster::distanceFromPoints(raster::raster(x), y)) + x*0)
+
+    } else { # assume pre-calculated distances
+      d_rast <- x
+    }
 
     # Calculate distance weights (write to file when required)
     if (is.character(filename) && nchar(filename) > 0) {
