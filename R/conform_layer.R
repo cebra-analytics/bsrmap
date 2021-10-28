@@ -13,7 +13,8 @@
 #'   \code{FALSE}.
 #' @param binarize Logical indicating if the combined cells should be
 #'   binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.
-#' @param ... Additional parameters (unused).
+#' @param filename Optional file writing path (character).
+#' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
 #'   (as per \code{pathway_layers}) containing the conformed layer.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
@@ -27,7 +28,8 @@
 #' @export
 conform_layer <- function(x, y,
                           normalize = FALSE,
-                          binarize = FALSE, ...) {
+                          binarize = FALSE,
+                          filename = "", ...) {
   UseMethod("conform_layer")
 }
 
@@ -35,19 +37,22 @@ conform_layer <- function(x, y,
 #' @export
 conform_layer.Raster <- function(x, y,
                                  normalize = FALSE,
-                                 binarize = FALSE, ...) {
+                                 binarize = FALSE,
+                                 filename = "", ...) {
 
   # Call the terra version of the function
   conform_layer(terra::rast(x), y,
                 normalize = normalize,
-                binarize = binarize, ...)
+                binarize = binarize,
+                filename = filename, ...)
 }
 
 #' @name conform_layer
 #' @export
 conform_layer.SpatRaster <- function(x, y,
                                      normalize = FALSE,
-                                     binarize = FALSE, ...) {
+                                     binarize = FALSE,
+                                     filename = "", ...) {
   # Convert y to terra
   if (class(y)[1] %in% c("Raster", "RasterStack", "RasterBrick")) {
     y <- terra::rast(y)
@@ -88,6 +93,11 @@ conform_layer.SpatRaster <- function(x, y,
   if (binarize) {
     message("Binarizing raster ...")
     x <- x > 0
+  }
+
+  # Write to file when required
+  if (is.character(filename) && nchar(filename) > 0) {
+    x <- terra::writeRaster(x, filename, ...)
   }
 
   return(x)

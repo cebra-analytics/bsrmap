@@ -6,11 +6,32 @@
 \alias{distance_weight_layer.SpatRaster}
 \title{Calculate a distance weight layer}
 \usage{
-distance_weight_layer(x, y, beta = log(0.5)/200, weights = NULL, ...)
+distance_weight_layer(
+  x,
+  y,
+  beta = log(0.5)/200,
+  weights = NULL,
+  filename = "",
+  ...
+)
 
-\method{distance_weight_layer}{Raster}(x, y, beta = log(0.5)/200, weights = NULL, ...)
+\method{distance_weight_layer}{Raster}(
+  x,
+  y,
+  beta = log(0.5)/200,
+  weights = NULL,
+  filename = "",
+  ...
+)
 
-\method{distance_weight_layer}{SpatRaster}(x, y, beta = log(0.5)/200, weights = NULL, ...)
+\method{distance_weight_layer}{SpatRaster}(
+  x,
+  y,
+  beta = log(0.5)/200,
+  weights = NULL,
+  filename = "",
+  ...
+)
 }
 \arguments{
 \item{x}{A \code{raster::RasterLayer} or \code{terra::SpatRaster}
@@ -34,7 +55,9 @@ additionally proportionally weighted. Thus the exponential function
 (above) becomes: the maximum of \code{exp(distance/(1000/beta))*weight}
 for each cell.}
 
-\item{...}{Additional parameters (unused).}
+\item{filename}{Optional file writing path (character).}
+
+\item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
 A \code{raster::RasterLayer} or \code{terra::SpatRaster} object

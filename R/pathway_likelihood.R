@@ -14,7 +14,8 @@
 #'   and upper bounds (CI) for establishment rate (the rate of survival, to
 #'   establishment, for leakage events).
 #' @param confidence Confidence interval (CI). Default = 0.95.
-#' @param ... Additional parameters (unused).
+#' @param filename Optional file writing path (character).
+#' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
 #'   (as per \code{pathway_layers}) containing estimated pathway pest arrival
 #'   likelihoods.
@@ -31,7 +32,8 @@
 pathway_likelihood <- function(pathway_layers,
                                leakage_rate_ci,
                                establishment_rate_ci,
-                               confidence = 0.95, ...) {
+                               confidence = 0.95,
+                               filename = "", ...) {
   UseMethod("pathway_likelihood")
 }
 
@@ -40,12 +42,14 @@ pathway_likelihood <- function(pathway_layers,
 pathway_likelihood.Raster <- function(pathway_layers,
                                       leakage_rate_ci,
                                       establishment_rate_ci,
-                                      confidence = 0.95, ...) {
+                                      confidence = 0.95,
+                                      filename = "", ...) {
 
   # Call the terra version of the function
   pathway_likelihood(terra::rast(pathway_layers),
                      leakage_rate_ci, establishment_rate_ci,
-                     confidence = confidence, ...)
+                     confidence = confidence,
+                     filename = filename, ...)
 }
 
 #' @name pathway_likelihood
@@ -53,7 +57,8 @@ pathway_likelihood.Raster <- function(pathway_layers,
 pathway_likelihood.SpatRaster <- function(pathway_layers,
                                           leakage_rate_ci,
                                           establishment_rate_ci,
-                                          confidence = 0.95, ...) {
+                                          confidence = 0.95,
+                                          filename = "", ...) {
 
   # Check leakage and establishment rate confidence intervals
   if (is.numeric(leakage_rate_ci) &&
@@ -81,5 +86,6 @@ pathway_likelihood.SpatRaster <- function(pathway_layers,
                                 confidence)
 
   # Distribute probabilities across combined layer
-  return(calc_pathway_pr(combined_layer, establ_event_probs))
+  return(calc_pathway_pr(combined_layer, establ_event_probs,
+                         filename = filename, ...))
 }

@@ -10,6 +10,7 @@ aggregate_layer(
   x,
   y,
   use_fun = c("mean", "max", "min", "median", "sum", "modal"),
+  filename = "",
   ...
 )
 
@@ -17,6 +18,7 @@ aggregate_layer(
   x,
   y,
   use_fun = c("mean", "max", "min", "median", "sum", "modal"),
+  filename = "",
   ...
 )
 
@@ -24,6 +26,7 @@ aggregate_layer(
   x,
   y,
   use_fun = c("mean", "max", "min", "median", "sum", "modal"),
+  filename = "",
   ...
 )
 }
@@ -38,7 +41,9 @@ configuration) to aggregate (conform) to.}
 \item{use_fun}{One of \code{"mean"}, \code{"max"}, \code{"min"},
 \code{"median"}, \code{"sum"}, or \code{"modal"}.}
 
-\item{...}{Additional parameters (unused).}
+\item{filename}{Optional file writing path (character).}
+
+\item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
 A \code{raster::RasterLayer} or \code{terra::SpatRaster} object

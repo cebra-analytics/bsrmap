@@ -20,7 +20,8 @@
 #' @param binarize Logical indicating if the aggregated cells should be
 #'   binarized, i.e. set to 1 for cells containing selected category values.
 #'   Default = TRUE.
-#' @param ... Additional parameters (unused).
+#' @param filename Optional file writing path (character).
+#' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
 #'   (as per \code{pathway_layers}) containing the conformed layer.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
@@ -35,7 +36,8 @@
 aggregate_categories <- function(x, y,
                                  categories = NULL,
                                  selected = NULL,
-                                 binarize = TRUE, ...) {
+                                 binarize = TRUE,
+                                 filename = "", ...) {
   UseMethod("aggregate_categories")
 }
 
@@ -44,12 +46,14 @@ aggregate_categories <- function(x, y,
 aggregate_categories.Raster <- function(x, y,
                                         categories = NULL,
                                         selected = NULL,
-                                        binarize = TRUE, ...) {
+                                        binarize = TRUE,
+                                        filename = "", ...) {
   # Call the terra version of the function
   aggregate_categories(terra::rast(x), y,
                        categories = categories,
                        selected = selected,
-                       binarize = binarize, ...)
+                       binarize = binarize,
+                       filename = filename, ...)
 }
 
 #' @name aggregate_categories
@@ -57,7 +61,8 @@ aggregate_categories.Raster <- function(x, y,
 aggregate_categories.SpatRaster <- function(x, y,
                                             categories = NULL,
                                             selected = NULL,
-                                            binarize = TRUE, ...) {
+                                            binarize = TRUE,
+                                            filename = "", ...) {
   # Convert y to terra
   if (class(y)[1] %in% c("Raster", "RasterStack", "RasterBrick")) {
     y <- terra::rast(y)
@@ -83,7 +88,7 @@ aggregate_categories.SpatRaster <- function(x, y,
                                 use_fun = ifelse(binarize, "max", "mean"))
 
   # Conform
-  x_selected <- conform_layer(x_selected, y)
+  x_selected <- conform_layer(x_selected, y, filename = filename, ...)
 
   return(x_selected)
 }

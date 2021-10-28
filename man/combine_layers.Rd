@@ -6,11 +6,29 @@
 \alias{combine_layers.SpatRaster}
 \title{Combine spatial layers}
 \usage{
-combine_layers(x, use_fun = c("prod", "sum", "union"), binarize = FALSE, ...)
+combine_layers(
+  x,
+  use_fun = c("prod", "sum", "union"),
+  binarize = FALSE,
+  filename = "",
+  ...
+)
 
-\method{combine_layers}{Raster}(x, use_fun = c("prod", "sum", "union"), binarize = FALSE, ...)
+\method{combine_layers}{Raster}(
+  x,
+  use_fun = c("prod", "sum", "union"),
+  binarize = FALSE,
+  filename = "",
+  ...
+)
 
-\method{combine_layers}{SpatRaster}(x, use_fun = c("prod", "sum", "union"), binarize = FALSE, ...)
+\method{combine_layers}{SpatRaster}(
+  x,
+  use_fun = c("prod", "sum", "union"),
+  binarize = FALSE,
+  filename = "",
+  ...
+)
 }
 \arguments{
 \item{x}{A multi-layer \code{raster::Raster*} or \code{terra::SpatRaster}
@@ -21,7 +39,9 @@ object representing the spatial layers to combine.}
 \item{binarize}{Logical indicating if the combined cells should be
 binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.}
 
-\item{...}{Additional parameters.}
+\item{filename}{Optional file writing path (character).}
+
+\item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
 A \code{raster::RasterLayer} or \code{terra::SpatRaster} object

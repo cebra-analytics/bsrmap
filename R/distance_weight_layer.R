@@ -21,7 +21,8 @@
 #'   additionally proportionally weighted. Thus the exponential function
 #'   (above) becomes: the maximum of \code{exp(distance/(1000/beta))*weight}
 #'   for each cell.
-#' @param ... Additional parameters (unused).
+#' @param filename Optional file writing path (character).
+#' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
 #'   (as per \code{x}) containing distance-weighted cell values.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
@@ -33,7 +34,8 @@
 #' @export
 distance_weight_layer <- function(x, y,
                                   beta = log(0.5)/200,
-                                  weights = NULL, ...) {
+                                  weights = NULL,
+                                  filename = "", ...) {
   UseMethod("distance_weight_layer")
 }
 
@@ -41,18 +43,21 @@ distance_weight_layer <- function(x, y,
 #' @export
 distance_weight_layer.Raster <- function(x, y,
                                          beta = log(0.5)/200,
-                                         weights = NULL, ...) {
+                                         weights = NULL,
+                                         filename = "", ...) {
   # Call the terra version of the function
   distance_weight_layer(terra::rast(x), y,
                         beta = beta,
-                        weights = weights, ...)
+                        weights = weights,
+                        filename = filename, ...)
 }
 
 #' @name distance_weight_layer
 #' @export
 distance_weight_layer.SpatRaster <- function(x, y,
                                              beta = log(0.5)/200,
-                                             weights = NULL, ...) {
+                                             weights = NULL,
+                                             filename = "", ...) {
   # Check points (features) y
   y <- as.data.frame(y)
   if (ncol(y) < 2) {
@@ -81,8 +86,12 @@ distance_weight_layer.SpatRaster <- function(x, y,
     suppressWarnings(d_rast <- terra::rast(
       raster::distanceFromPoints(raster::raster(x), y)) + x*0)
 
-    # Calculate distance weights
-    return(exp(d_rast/(1000/beta)))
+    # Calculate distance weights (write to file when required)
+    if (is.character(filename) && nchar(filename) > 0) {
+      weight_rast <- terra::writeRaster(exp(d_rast/(1000/beta)), filename, ...)
+    } else {
+      weight_rast <- exp(d_rast/(1000/beta))
+    }
 
   } else {
 
@@ -97,8 +106,14 @@ distance_weight_layer.SpatRaster <- function(x, y,
       d <- raster::values(raster::distanceFromPoints(x_rast, y[i, ]))
       w <- pmax(w, exp(d/(1000/beta))*weights[i])
     }
-    terra::values(weight_rast) <- w
 
-    return(weight_rast)
+    # Write to file when required
+    if (is.character(filename) && nchar(filename) > 0) {
+      weight_rast <- terra::init(terra::rast(weight_rast), w, filename, ...)
+    } else {
+      terra::values(weight_rast) <- w
+    }
   }
+
+  return(weight_rast)
 }

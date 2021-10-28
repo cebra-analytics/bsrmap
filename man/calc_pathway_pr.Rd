@@ -6,11 +6,11 @@
 \alias{calc_pathway_pr.SpatRaster}
 \title{Calculate the pathway-specific probability of pest arrival}
 \usage{
-calc_pathway_pr(rast, EE, ...)
+calc_pathway_pr(rast, EE, filename = "", ...)
 
-\method{calc_pathway_pr}{Raster}(rast, EE, ...)
+\method{calc_pathway_pr}{Raster}(rast, EE, filename = "", ...)
 
-\method{calc_pathway_pr}{SpatRaster}(rast, EE, ...)
+\method{calc_pathway_pr}{SpatRaster}(rast, EE, filename = "", ...)
 }
 \arguments{
 \item{rast}{A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
@@ -20,7 +20,9 @@ pest arrival.}
 \item{EE}{\code{data.frame} containing overall establishment event
 probabilities calculated via \code{\link{calc_EE}}.}
 
-\item{...}{Additional parameters (unused).}
+\item{filename}{Optional file writing path (character).}
+
+\item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
 A \code{raster::RasterLayer} or \code{terra::SpatRaster} object (as

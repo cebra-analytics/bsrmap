@@ -8,7 +8,8 @@
 #'   pest arrival.
 #' @param EE \code{data.frame} containing overall establishment event
 #'   probabilities calculated via \code{\link{calc_EE}}.
-#' @param ... Additional parameters (unused).
+#' @param filename Optional file writing path (character).
+#' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object (as
 #'   per \code{rast}) containing the calculated pathway-specific
 #'   spatially-explicit pest arrival probability estimates.
@@ -19,21 +20,21 @@
 #' @note Modified version of
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}::calc_pathway_pr}.
 #' @export
-calc_pathway_pr <- function(rast, EE, ...) {
+calc_pathway_pr <- function(rast, EE, filename = "", ...) {
   UseMethod("calc_pathway_pr")
 }
 
 #' @name calc_pathway_pr
 #' @export
-calc_pathway_pr.Raster <- function(rast, EE, ...) {
+calc_pathway_pr.Raster <- function(rast, EE, filename = "", ...) {
 
   # Call the terra version of the function
-  calc_pathway_pr(terra::rast(rast), EE, ...)
+  calc_pathway_pr(terra::rast(rast), EE, filename = filename, ...)
 }
 
 #' @name calc_pathway_pr
 #' @export
-calc_pathway_pr.SpatRaster <- function(rast, EE, ...) {
+calc_pathway_pr.SpatRaster <- function(rast, EE, filename = "", ...) {
 
   # EE contains possible number of incursions (N) and their probabilities (p)
   # cell_arrival_prob = 1 - sum_over_N(p*(1 - cell_value)^N)
@@ -45,6 +46,11 @@ calc_pathway_pr.SpatRaster <- function(rast, EE, ...) {
   }
   arrival_prob_rast <- terra::rast(rast) # empty
   arrival_prob_rast[rast_df$cell] <- 1 - arrival_prob
+
+  # Write to file when required
+  if (is.character(filename) && nchar(filename) > 0) {
+    arrival_prob_rast <- terra::writeRaster(arrival_prob_rast, filename, ...)
+  }
 
   return(arrival_prob_rast)
 }

@@ -12,6 +12,7 @@ aggregate_categories(
   categories = NULL,
   selected = NULL,
   binarize = TRUE,
+  filename = "",
   ...
 )
 
@@ -21,6 +22,7 @@ aggregate_categories(
   categories = NULL,
   selected = NULL,
   binarize = TRUE,
+  filename = "",
   ...
 )
 
@@ -30,6 +32,7 @@ aggregate_categories(
   categories = NULL,
   selected = NULL,
   binarize = TRUE,
+  filename = "",
   ...
 )
 }
@@ -53,7 +56,9 @@ is left \code{NULL} (default) no categories will be selected.}
 binarized, i.e. set to 1 for cells containing selected category values.
 Default = TRUE.}
 
-\item{...}{Additional parameters (unused).}
+\item{filename}{Optional file writing path (character).}
+
+\item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
 A \code{raster::RasterLayer} or \code{terra::SpatRaster} object

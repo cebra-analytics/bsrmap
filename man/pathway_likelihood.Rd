@@ -11,6 +11,7 @@ pathway_likelihood(
   leakage_rate_ci,
   establishment_rate_ci,
   confidence = 0.95,
+  filename = "",
   ...
 )
 
@@ -19,6 +20,7 @@ pathway_likelihood(
   leakage_rate_ci,
   establishment_rate_ci,
   confidence = 0.95,
+  filename = "",
   ...
 )
 
@@ -27,6 +29,7 @@ pathway_likelihood(
   leakage_rate_ci,
   establishment_rate_ci,
   confidence = 0.95,
+  filename = "",
   ...
 )
 }
@@ -45,7 +48,9 @@ establishment, for leakage events).}
 
 \item{confidence}{Confidence interval (CI). Default = 0.95.}
 
-\item{...}{Additional parameters (unused).}
+\item{filename}{Optional file writing path (character).}
+
+\item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
 A \code{raster::RasterLayer} or \code{terra::SpatRaster} object

@@ -12,7 +12,8 @@
 #'   configuration) to aggregate (conform) to.
 #' @param use_fun One of \code{"mean"}, \code{"max"}, \code{"min"},
 #'   \code{"median"}, \code{"sum"}, or \code{"modal"}.
-#' @param ... Additional parameters (unused).
+#' @param filename Optional file writing path (character).
+#' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
 #'   (as per \code{pathway_layers}) containing the conformed layer.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
@@ -25,7 +26,8 @@
 #' @export
 aggregate_layer <- function(x, y,
                             use_fun = c("mean", "max", "min",
-                                        "median", "sum", "modal"), ...) {
+                                        "median", "sum", "modal"),
+                            filename = "", ...) {
   UseMethod("aggregate_layer")
 }
 
@@ -34,10 +36,11 @@ aggregate_layer <- function(x, y,
 aggregate_layer.Raster <- function(x, y,
                                    use_fun = c("mean", "max", "min",
                                                "median", "sum", "modal"),
-                                   ...) {
+                                   filename = "", ...) {
   # Call the terra version of the function
   aggregate_layer(terra::rast(x), y,
-                  use_fun = use_fun, ...)
+                  use_fun = use_fun,
+                  filename = filename, ...)
 }
 
 #' @name aggregate_layer
@@ -45,7 +48,7 @@ aggregate_layer.Raster <- function(x, y,
 aggregate_layer.SpatRaster <- function(x, y,
                                        use_fun = c("mean", "max", "min",
                                                    "median", "sum", "modal"),
-                                       ...) {
+                                       filename = "", ...) {
   # Convert y to terra
   if (class(y)[1] %in% c("Raster", "RasterStack", "RasterBrick")) {
     y <- terra::rast(y)
@@ -80,6 +83,11 @@ aggregate_layer.SpatRaster <- function(x, y,
       terra::ext(x) != terra::ext(y)) {
     message("Resampling raster ...")
     x <- terra::resample(x, y, method = "near")
+  }
+
+  # Write to file when required
+  if (is.character(filename) && nchar(filename) > 0) {
+    x <- terra::writeRaster(x, filename, ...)
   }
 
   return(x)

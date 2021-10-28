@@ -8,7 +8,8 @@
 #' @param use_fun One of \code{"prod"}, \code{"sum"}, or \code{"union"}.
 #' @param binarize Logical indicating if the combined cells should be
 #'   binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.
-#' @param ... Additional parameters.
+#' @param filename Optional file writing path (character).
+#' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
 #'   (as per \code{pathway_layers}) containing the combined layer.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
@@ -20,7 +21,8 @@
 #' @export
 combine_layers <- function(x,
                            use_fun = c("prod", "sum", "union"),
-                           binarize = FALSE, ...) {
+                           binarize = FALSE,
+                           filename = "", ...) {
   UseMethod("combine_layers")
 }
 
@@ -28,19 +30,22 @@ combine_layers <- function(x,
 #' @export
 combine_layers.Raster <- function(x,
                                   use_fun = c("prod", "sum", "union"),
-                                  binarize = FALSE, ...) {
+                                  binarize = FALSE,
+                                  filename = "", ...) {
 
   # Call the terra version of the function
   combine_layers(terra::rast(x),
                  use_fun = use_fun,
-                 binarize = binarize, ...)
+                 binarize = binarize,
+                 filename = filename, ...)
 }
 
 #' @name combine_layers
 #' @export
 combine_layers.SpatRaster <- function(x,
                                       use_fun = c("prod", "sum", "union"),
-                                      binarize = FALSE, ...) {
+                                      binarize = FALSE,
+                                      filename = "", ...) {
 
   # Apply function to layers when multiple layers
   if (terra::nlyr(x) > 1) {
@@ -58,6 +63,11 @@ combine_layers.SpatRaster <- function(x,
   if (binarize) {
     message("Binarizing raster ...")
     x_combined <- x_combined > 0
+  }
+
+  # Write to file when required
+  if (is.character(filename) && nchar(filename) > 0) {
+    x_combined <- terra::writeRaster(x_combined, filename, ...)
   }
 
   return(x_combined)
