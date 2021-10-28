@@ -9,6 +9,7 @@
 combine_layers(
   x,
   use_fun = c("prod", "sum", "union"),
+  na.rm = FALSE,
   binarize = FALSE,
   filename = "",
   ...
@@ -17,6 +18,7 @@ combine_layers(
 \method{combine_layers}{Raster}(
   x,
   use_fun = c("prod", "sum", "union"),
+  na.rm = FALSE,
   binarize = FALSE,
   filename = "",
   ...
@@ -25,6 +27,7 @@ combine_layers(
 \method{combine_layers}{SpatRaster}(
   x,
   use_fun = c("prod", "sum", "union"),
+  na.rm = FALSE,
   binarize = FALSE,
   filename = "",
   ...
@@ -35,6 +38,9 @@ combine_layers(
 object representing the spatial layers to combine.}
 
 \item{use_fun}{One of \code{"prod"}, \code{"sum"}, or \code{"union"}.}
+
+\item{na.rm}{Logical indicating whether or not to ignore \code{"NA"} values
+when applying the combination function (\code{"use_fun"}).}
 
 \item{binarize}{Logical indicating if the combined cells should be
 binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.}

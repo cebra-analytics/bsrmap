@@ -6,6 +6,8 @@
 #' @param x A multi-layer \code{raster::Raster*} or \code{terra::SpatRaster}
 #'   object representing the spatial layers to combine.
 #' @param use_fun One of \code{"prod"}, \code{"sum"}, or \code{"union"}.
+#' @param na.rm Logical indicating whether or not to ignore \code{"NA"} values
+#'   when applying the combination function (\code{"use_fun"}).
 #' @param binarize Logical indicating if the combined cells should be
 #'   binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
@@ -21,6 +23,7 @@
 #' @export
 combine_layers <- function(x,
                            use_fun = c("prod", "sum", "union"),
+                           na.rm = FALSE,
                            binarize = FALSE,
                            filename = "", ...) {
   UseMethod("combine_layers")
@@ -30,12 +33,14 @@ combine_layers <- function(x,
 #' @export
 combine_layers.Raster <- function(x,
                                   use_fun = c("prod", "sum", "union"),
+                                  na.rm = FALSE,
                                   binarize = FALSE,
                                   filename = "", ...) {
 
   # Call the terra version of the function
   combine_layers(terra::rast(x),
                  use_fun = use_fun,
+                 na.rm = na.rm,
                  binarize = binarize,
                  filename = filename, ...)
 }
@@ -44,6 +49,7 @@ combine_layers.Raster <- function(x,
 #' @export
 combine_layers.SpatRaster <- function(x,
                                       use_fun = c("prod", "sum", "union"),
+                                      na.rm = FALSE,
                                       binarize = FALSE,
                                       filename = "", ...) {
 
@@ -51,9 +57,9 @@ combine_layers.SpatRaster <- function(x,
   if (terra::nlyr(x) > 1) {
     message(sprintf("Calculating raster %s ...", use_fun))
     if (use_fun %in% c("prod", "sum")) {
-      x_combined <- terra::app(x, fun = use_fun, na.rm = TRUE)
+      x_combined <- terra::app(x, fun = use_fun, na.rm = na.rm)
     } else if (use_fun == "union") {
-      x_combined <- 1 - terra::app(1 - x, fun = "prod", na.rm = TRUE)
+      x_combined <- 1 - terra::app(1 - x, fun = "prod", na.rm = na.rm)
     }
   } else { # single layer
     x_combined <- x
