@@ -88,7 +88,7 @@ conform_layer.SpatRaster <- function(x, y,
   if (length(terra::unique(y))) {
     message("Conforming to non-NA values ...")
     x <- combine_layers(terra::rast(list(x, y*0)),
-                        use_fun = "sum", na.rm = TRUE)
+                        use_fun = "sum", na.rm = TRUE) + y*0
   }
 
   # Binarize when required
