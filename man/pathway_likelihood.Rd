@@ -4,7 +4,7 @@
 \alias{pathway_likelihood}
 \alias{pathway_likelihood.Raster}
 \alias{pathway_likelihood.SpatRaster}
-\title{Estimate pathway pest arrival likelihood}
+\title{Estimate pathway pest establishment likelihood}
 \usage{
 pathway_likelihood(
   pathway_layers,
@@ -36,7 +36,7 @@ pathway_likelihood(
 \arguments{
 \item{pathway_layers}{A \code{raster::Raster*} or \code{terra::SpatRaster}
 object containing one or more layers for estimating the spatial
-distribution of arrival likelihood.}
+distribution of establishment likelihood.}
 
 \item{leakage_rate_ci}{Numeric vector of 2 values, giving the lower and
 upper bounds (CI) for leakage rate (the number of pest leakage events in
@@ -54,13 +54,13 @@ establishment, for leakage events).}
 }
 \value{
 A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-(as per \code{pathway_layers}) containing estimated pathway pest arrival
-likelihoods.
+(as per \code{pathway_layers}) containing estimated pathway pest
+establishment likelihoods.
 }
 \description{
-Estimates spatially-explicit pest arrival likelihoods for a given pathway
-from overall leakage and establishment rate estimates and their likely
-spatial distribution.
+Estimates spatially-explicit pest establishment likelihoods for a given
+pathway from overall leakage and establishment rate estimates and their
+likely spatial distribution.
 }
 \note{
 Generalized modified version of
