@@ -1,11 +1,15 @@
 #' Combine spatial layers
 #'
-#' Combines multiple spatial layers via cell-wise multiplication, addition,
-#' or union (via complements), and optionally binarizes the output.
+#' Combines multiple spatial layers via (optionally weighted) cell-wise
+#' multiplication, addition, or union (via complements), and optionally
+#' binarizes the output.
 #'
 #' @param x A multi-layer \code{raster::Raster*} or \code{terra::SpatRaster}
 #'   object representing the spatial layers to combine.
-#' @param use_fun One of \code{"prod"}, \code{"sum"}, or \code{"union"}.
+#' @param use_fun One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
+#'   union function is intended for probabilities (via \code{1 - sum(1 - x)}).
+#' @param weights Optional (default is none) numeric vector of weights for
+#'   each layer to be combined via \code{"prod"} or \code{"sum"} only.
 #' @param na.rm Logical indicating whether or not to ignore \code{"NA"} values
 #'   when applying the combination function (\code{"use_fun"}). Default =
 #'   \code{FALSE}.
@@ -24,6 +28,7 @@
 #' @export
 combine_layers <- function(x,
                            use_fun = c("prod", "sum", "union"),
+                           weights = NULL,
                            na.rm = FALSE,
                            binarize = FALSE,
                            filename = "", ...) {
@@ -34,6 +39,7 @@ combine_layers <- function(x,
 #' @export
 combine_layers.Raster <- function(x,
                                   use_fun = c("prod", "sum", "union"),
+                                  weights = NULL,
                                   na.rm = FALSE,
                                   binarize = FALSE,
                                   filename = "", ...) {
@@ -41,6 +47,7 @@ combine_layers.Raster <- function(x,
   # Call the terra version of the function
   combine_layers(terra::rast(x),
                  use_fun = use_fun,
+                 weights = weights,
                  na.rm = na.rm,
                  binarize = binarize,
                  filename = filename, ...)
@@ -50,6 +57,7 @@ combine_layers.Raster <- function(x,
 #' @export
 combine_layers.SpatRaster <- function(x,
                                       use_fun = c("prod", "sum", "union"),
+                                      weights = NULL,
                                       na.rm = FALSE,
                                       binarize = FALSE,
                                       filename = "", ...) {
@@ -58,7 +66,12 @@ combine_layers.SpatRaster <- function(x,
   if (terra::nlyr(x) > 1) {
     message(sprintf("Calculating raster %s ...", use_fun))
     if (use_fun %in% c("prod", "sum")) {
-      x_combined <- terra::app(x, fun = use_fun, na.rm = na.rm)
+      # Are weights present?
+      if (is.null(weights) || all(weights[1] == weights)) {
+        x_combined <- terra::app(x, fun = use_fun, na.rm = na.rm)
+      } else {
+        x_combined <- terra::app(x*weights, fun = use_fun, na.rm = na.rm)
+      }
     } else if (use_fun == "union") {
       x_combined <- 1 - terra::app(1 - x, fun = "prod", na.rm = na.rm)
     }
