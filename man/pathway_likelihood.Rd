@@ -4,12 +4,12 @@
 \alias{pathway_likelihood}
 \alias{pathway_likelihood.Raster}
 \alias{pathway_likelihood.SpatRaster}
-\title{Estimate pathway pest establishment likelihood}
+\title{Estimate pathway pest establishment viability likelihood}
 \usage{
 pathway_likelihood(
   pathway_layers,
   leakage_rate_ci,
-  establishment_rate_ci,
+  viability_rate_ci,
   confidence = 0.95,
   filename = "",
   ...
@@ -18,7 +18,7 @@ pathway_likelihood(
 \method{pathway_likelihood}{Raster}(
   pathway_layers,
   leakage_rate_ci,
-  establishment_rate_ci,
+  viability_rate_ci,
   confidence = 0.95,
   filename = "",
   ...
@@ -27,7 +27,7 @@ pathway_likelihood(
 \method{pathway_likelihood}{SpatRaster}(
   pathway_layers,
   leakage_rate_ci,
-  establishment_rate_ci,
+  viability_rate_ci,
   confidence = 0.95,
   filename = "",
   ...
@@ -36,15 +36,15 @@ pathway_likelihood(
 \arguments{
 \item{pathway_layers}{A \code{raster::Raster*} or \code{terra::SpatRaster}
 object containing one or more layers for estimating the spatial
-distribution of establishment likelihood.}
+distribution of establishment viability likelihood.}
 
 \item{leakage_rate_ci}{Numeric vector of 2 values, giving the lower and
 upper bounds (CI) for leakage rate (the number of pest leakage events in
 a random year).}
 
-\item{establishment_rate_ci}{Numeric vector of 2 values, giving the lower
-and upper bounds (CI) for establishment rate (the rate of survival, to
-establishment, for leakage events).}
+\item{viability_rate_ci}{Numeric vector of 2 values, giving the lower
+and upper bounds (CI) for establishment viability rate (the rate of
+pests arriving with viability to establish for leakage events).}
 
 \item{confidence}{Confidence interval (CI). Default = 0.95.}
 
@@ -55,12 +55,12 @@ establishment, for leakage events).}
 \value{
 A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
 (as per \code{pathway_layers}) containing estimated pathway pest
-establishment likelihoods.
+establishment viability likelihoods.
 }
 \description{
-Estimates spatially-explicit pest establishment likelihoods for a given
-pathway from overall leakage and establishment rate estimates and their
-likely spatial distribution.
+Estimates spatially-explicit pest establishment viability likelihoods for
+a given pathway from overall leakage and establishment viability rate
+estimates and their likely spatial distribution.
 }
 \note{
 Generalized modified version of

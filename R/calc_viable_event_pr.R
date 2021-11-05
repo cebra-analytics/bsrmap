@@ -1,16 +1,18 @@
-#' Calculate establishment event probabilities
+#' Calculate establishment viability event probabilities
 #'
 #' Calculate (via stochastic sampling) the probability of one or more
-#' establishment events occurring as as a function of estimated leakage numbers
-#' and the probability a leakage event could result in establishment.
+#' arrival events with establishment viability occurring as as a function of
+#' estimated leakage numbers and the probability a leakage event could result
+#' in an arrival with establishment viability.
 #'
 #' @param n_events Numeric vector containing lower and upper bounds (CI) for
 #'   the number of leakage events.
-#' @param p_establish Numeric vector containing the lower and upper bounds
-#'   (CI) for the probability a leakage event could result in an establishment.
+#' @param p_viable Numeric vector containing the lower and upper bounds
+#'   (CI) for the probability a leakage event could result in an arrival with
+#'   establishment viability.
 #' @param confidence Confidence interval (CI). Default = 0.95.
 #' @param n_sims Integer. Number of samples to be taken from event and
-#'   establishment distributions. Default = 100000.
+#'   establishment viability distributions. Default = 100000.
 #' @param ... Additional parameters (unused).
 #' @return A \code{data.frame} containing the possible number of incursions
 #'   that may occur, and their corresponding probabilities.
@@ -21,19 +23,19 @@
 #' @note Modified version of
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}::calc_EE}.
 #' @export
-calc_establish_event_pr <- function(n_events, p_establish,
-                                    confidence = 0.95,
-                                    n_sims = 100000, ...) {
+calc_viable_event_pr <- function(n_events, p_viable,
+                                 confidence = 0.95,
+                                 n_sims = 100000, ...) {
 
-  # Check n_events and p_establish confidence intervals
+  # Check n_events and p_viable confidence intervals
   if (is.numeric(n_events) && length(n_events) != 2 &&
       n_events[1] < n_events[2]) {
     stop("n_events (CI) should have numeric form: (lower, upper).",
          call. = FALSE)
   }
-  if (is.numeric(p_establish) && length(p_establish) != 2 &&
-      p_establish[1] < p_establish[2]) {
-    stop("p_establish (CI) should have numeric form: (lower, upper).",
+  if (is.numeric(p_viable) && length(p_viable) != 2 &&
+      p_viable[1] < p_viable[2]) {
+    stop("p_viable (CI) should have numeric form: (lower, upper).",
          call. = FALSE)
   }
 
@@ -48,9 +50,9 @@ calc_establish_event_pr <- function(n_events, p_establish,
   # Sample leakage from poisson using lambda
   n <- stats::rpois(n = n_sims, lambda = lambda)
 
-  ## Calculate establishment probability
-  logit_mean <- mean(stats::qlogis(p_establish))
-  logit_sd <- ((logit_mean - stats::qlogis(min(p_establish)))/
+  ## Calculate establishment viability probability
+  logit_mean <- mean(stats::qlogis(p_viable))
+  logit_sd <- ((logit_mean - stats::qlogis(min(p_viable)))/
                  stats::qnorm(1 - (1 - confidence)/2))
 
   # Sample probability from logit normal
