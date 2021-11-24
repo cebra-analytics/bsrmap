@@ -30,7 +30,6 @@
 #'   \url{https://github.com/jscamac/edmaps}.
 #' @note Generalized modified version of corresponding alpha hull function
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}::rasterize_range}.
-#' @include conform_layer.R
 #' @export
 buffered_hull_layer <- function(x, y,
                                 hull = c("alpha", "convex", "none"),
@@ -106,10 +105,9 @@ buffered_hull_layer.SpatRaster <- function(x, y,
               y = arc["c2"] + arc["r"]*sin(seqang))
       }, simplify = FALSE))
 
-    # Convert to polygons via a small buffer around the lines and resolve holes
-    buffer_width <- terra::res(x)/100
+    # Convert to polygons via a small buffer around the arcs and resolve holes
     buffered_geom <- terra::geom(
-      terra::vect(sf::st_buffer(arcs_sf, dist = buffer_width)))
+      terra::vect(sf::st_buffer(arcs_sf, dist = terra::res(x)/100)))
     buffered_geom <- buffered_geom[which(buffered_geom[, "hole"] == 0),]
     y_vect <- terra::vect(buffered_geom, type = "polygons",
                           crs = terra::crs(x))
@@ -129,8 +127,14 @@ buffered_hull_layer.SpatRaster <- function(x, y,
   cell_idx <- terra::cells(x, y_vect)
   y_rast[cell_idx[, "cell"]] <- 1
 
-  # Conform to template x (and save when required)
-  output_rast <- conform_layer(y_rast, x, filename = filename, ...)
+  # Conform to template x
+  y_rast <- terra::app(terra::rast(list(y_rast, x*0)), fun = "sum",
+                       na.rm = TRUE) + x*0
 
-  return(output_rast)
+  # Write to file when required
+  if (is.character(filename) && nchar(filename) > 0) {
+    y_rast <- terra::writeRaster(y_rast, filename, ...)
+  }
+
+  return(y_rast)
 }
