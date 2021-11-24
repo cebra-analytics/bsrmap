@@ -14,7 +14,9 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports:
+    alphahull (>= 2.2),
     raster (>= 3.4.13),
+    sf (>= 1.0.2),
     terra (>= 1.3.22)
 Suggests:
     knitr,
@@ -26,6 +28,7 @@ Collate:
     'aggregate_layer.R'
     'conform_layer.R'
     'aggregate_categories.R'
+    'buffered_hull_layer.R'
     'calc_pathway_viability_pr.R'
     'calc_viable_event_pr.R'
     'distance_weight_layer.R'
