@@ -122,12 +122,7 @@ buffered_hull_layer.SpatRaster <- function(x, y,
   }
 
   # Rasterize the results and fit within the non-NA region of x
-  # y_rast <- terra::rasterize(y_vect, x) # unstable - wait for new terra
-  y_rast <- x*0
-  cell_idx <- terra::cells(x, y_vect)
-  y_rast[cell_idx[, "cell"]] <- 1
-
-  # Conform to template x
+  y_rast <- terra::rasterize(y_vect, x)
   y_rast <- terra::app(terra::rast(list(y_rast, x*0)), fun = "sum",
                        na.rm = TRUE) + x*0
 
