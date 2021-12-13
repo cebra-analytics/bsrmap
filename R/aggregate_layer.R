@@ -70,6 +70,7 @@ aggregate_layer.SpatRaster <- function(x, y,
     }
 
     # Aggregate
+    use_fun <- match.arg(use_fun)
     message("Aggregating raster ...")
     x <- terra::aggregate(x,
                           fact = aggregation_factor,

@@ -84,6 +84,7 @@ buffered_hull_layer.SpatRaster <- function(x, y,
   y_vect <- y_vect[matched[which(is.finite(matched[, 2])), 1]]
 
   # Fit a hull
+  hull <- match.arg(hull)
   if (hull == "alpha") {
 
     # Check alpha parameter

@@ -63,6 +63,7 @@ combine_layers.SpatRaster <- function(x,
                                       filename = "", ...) {
 
   # Apply function to layers when multiple layers
+  use_fun <- match.arg(use_fun)
   if (terra::nlyr(x) > 1) {
     message(sprintf("Calculating raster %s ...", use_fun))
     if (use_fun %in% c("prod", "sum")) {
