@@ -30,9 +30,8 @@ features (columns) in \code{y} to distribute.}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::Raster*} or \code{terra::SpatRaster} object (as per
-\code{x}) containing a spatial layer for each feature variable from
-\code{y} specified in \code{vars}.
+A multi-layer \code{terra::SpatRaster} object containing a spatial
+layer for each feature variable from \code{y} specified in \code{vars}.
 }
 \description{
 Distributes feature polygon values across a template or mask raster spatial

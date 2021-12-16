@@ -53,8 +53,7 @@ pests arriving with viability to establish for leakage events).}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-(as per \code{pathway_layers}) containing estimated pathway pest
+A \code{terra::SpatRaster} object containing estimated pathway pest
 establishment viability likelihoods.
 }
 \description{

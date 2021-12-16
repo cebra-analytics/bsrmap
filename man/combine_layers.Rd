@@ -58,8 +58,7 @@ binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-(as per \code{pathway_layers}) containing the combined layer.
+A \code{terra::SpatRaster} object containing the combined layer.
 }
 \description{
 Combines multiple spatial layers via (optionally weighted) cell-wise

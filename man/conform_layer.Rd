@@ -32,8 +32,7 @@ binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-(as per \code{pathway_layers}) containing the conformed layer.
+A \code{terra::SpatRaster} object containing the conformed layer.
 }
 \description{
 Conforms the spatial configuration (CRS, extent, and resolution) of a

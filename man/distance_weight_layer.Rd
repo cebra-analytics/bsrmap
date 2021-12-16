@@ -62,8 +62,8 @@ for each cell.}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-(as per \code{x}) containing distance-weighted cell values.
+A \code{terra::SpatRaster} object containing distance-weighted cell
+values.
 }
 \description{
 Calculates a distance-weighted spatial layer based on the proximity of each

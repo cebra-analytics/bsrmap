@@ -18,9 +18,8 @@
 #'   features (columns) in \code{y} to distribute.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
-#' @return A \code{raster::Raster*} or \code{terra::SpatRaster} object (as per
-#'   \code{x}) containing a spatial layer for each feature variable from
-#'   \code{y} specified in \code{vars}.
+#' @return A multi-layer \code{terra::SpatRaster} object containing a spatial
+#'   layer for each feature variable from \code{y} specified in \code{vars}.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
 #'   detection maps) : An R package for creating Australian maps of
 #'   establishment likelihood for terrestrial plant pests.

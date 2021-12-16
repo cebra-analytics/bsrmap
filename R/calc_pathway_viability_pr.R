@@ -10,9 +10,9 @@
 #'   event probabilities calculated via \code{\link{calc_viable_event_pr}}.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
-#' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object (as
-#'   per \code{rast}) containing the calculated pathway-specific
-#'   spatially-explicit pest establishment viability probability estimates.
+#' @return A \code{terra::SpatRaster} object containing the calculated
+#'   pathway-specific spatially-explicit pest establishment viability
+#'   probability estimates.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
 #'   detection maps) : An R package for creating Australian maps of
 #'   establishment likelihood for terrestrial plant pests.

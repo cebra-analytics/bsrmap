@@ -61,8 +61,8 @@ Default = TRUE.}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-(as per \code{pathway_layers}) containing the conformed layer.
+A \code{terra::SpatRaster} object containing an aggregated layer of
+selected categories.
 }
 \description{
 Aggregate the categories within a spatial layer to a courser resolution,

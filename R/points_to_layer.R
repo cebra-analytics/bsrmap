@@ -21,10 +21,9 @@
 #'   point from \code{y} for each cell in \code{x}. Default is 250 km.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
-#' @return A \code{raster::Raster} or \code{terra::SpatRaster} object (as per
-#'   \code{x}) containing a spatial layer with each cell value set to the
-#'   value of the nearest point from \code{y} when within the specified
-#'   \code{max_distance} range.
+#' @return A \code{terra::SpatRaster} object containing a spatial layer with
+#'   each cell value set to the value of the nearest point from \code{y} when
+#'   within the specified \code{max_distance} range.
 #' @include equivalent_crs.R
 #' @export
 points_to_layer <- function(x, y,

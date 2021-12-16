@@ -46,8 +46,7 @@ configuration) to aggregate (conform) to.}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-(as per \code{pathway_layers}) containing the conformed layer.
+A \code{terra::SpatRaster} object containing the aggregated layer.
 }
 \description{
 Aggregate the spatial resolution of a fine grain layer to that of another

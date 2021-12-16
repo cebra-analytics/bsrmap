@@ -15,8 +15,7 @@
 #'   binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
-#' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-#'   (as per \code{pathway_layers}) containing the conformed layer.
+#' @return A \code{terra::SpatRaster} object containing the conformed layer.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
 #'   detection maps) : An R package for creating Australian maps of
 #'   establishment likelihood for terrestrial plant pests.

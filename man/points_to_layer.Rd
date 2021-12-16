@@ -56,10 +56,9 @@ point from \code{y} for each cell in \code{x}. Default is 250 km.}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::Raster} or \code{terra::SpatRaster} object (as per
-\code{x}) containing a spatial layer with each cell value set to the
-value of the nearest point from \code{y} when within the specified
-\code{max_distance} range.
+A \code{terra::SpatRaster} object containing a spatial layer with
+each cell value set to the value of the nearest point from \code{y} when
+within the specified \code{max_distance} range.
 }
 \description{
 Converts point data to a raster layer defined by a template raster by

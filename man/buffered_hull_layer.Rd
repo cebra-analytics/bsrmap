@@ -64,8 +64,8 @@ coordinates (typically also in meters).}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-(as per \code{x}) containing the calculated buffered hull layer.
+A \code{terra::SpatRaster} object containing the calculated buffered
+hull layer.
 }
 \description{
 Calculates a spatial layer based on fitting a alpha or convex hull and/or a

@@ -25,9 +25,9 @@ event probabilities calculated via \code{\link{calc_viable_event_pr}}.}
 \item{...}{Additional parameters (passed to \code{writeRaster}).}
 }
 \value{
-A \code{raster::RasterLayer} or \code{terra::SpatRaster} object (as
-per \code{rast}) containing the calculated pathway-specific
-spatially-explicit pest establishment viability probability estimates.
+A \code{terra::SpatRaster} object containing the calculated
+pathway-specific spatially-explicit pest establishment viability
+probability estimates.
 }
 \description{
 Calculate the pathway-specific probability at each raster cell of the pest

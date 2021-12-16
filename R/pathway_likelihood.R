@@ -16,8 +16,7 @@
 #' @param confidence Confidence interval (CI). Default = 0.95.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
-#' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-#'   (as per \code{pathway_layers}) containing estimated pathway pest
+#' @return A \code{terra::SpatRaster} object containing estimated pathway pest
 #'   establishment viability likelihoods.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
 #'   detection maps) : An R package for creating Australian maps of

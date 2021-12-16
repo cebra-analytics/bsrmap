@@ -26,8 +26,8 @@
 #'   for each cell.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
-#' @return A \code{raster::RasterLayer} or \code{terra::SpatRaster} object
-#'   (as per \code{x}) containing distance-weighted cell values.
+#' @return A \code{terra::SpatRaster} object containing distance-weighted cell
+#'   values.
 #' @references Camac, J. & Baumgartner, J. (2021). \emph{edmaps} (early
 #'   detection maps) : An R package for creating Australian maps of
 #'   establishment likelihood for terrestrial plant pests.
