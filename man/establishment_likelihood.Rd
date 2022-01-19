@@ -7,6 +7,8 @@
 establishment_likelihood(
   pest_suitability_layer,
   arrival_likelihood_layer,
+  use_fun = "prod",
+  na.rm = FALSE,
   filename = "",
   ...
 )
@@ -19,6 +21,14 @@ establishment_likelihood(
 \item{arrival_likelihood_layer}{A \code{raster::RasterLayer} or
 \code{terra::SpatRaster} object representing the pest arrival likelihood
 spatial layer (a combination of one or more pathway layers).}
+
+\item{use_fun}{One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
+union function is intended for probabilities (via \code{1 - sum(1 - x)}).
+Default = \code{"prod"}.}
+
+\item{na.rm}{Logical indicating whether or not to ignore \code{"NA"} values
+when applying the combination function (\code{"use_fun"}). Default =
+\code{FALSE}.}
 
 \item{filename}{Optional file writing path (character).}
 

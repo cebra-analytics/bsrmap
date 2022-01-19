@@ -4,11 +4,22 @@
 \alias{abiotic_suitability}
 \title{Abiotic suitability risk mapping layer}
 \usage{
-abiotic_suitability(sdm_output, template, filename = "", ...)
+abiotic_suitability(
+  sdm_output,
+  normalize = FALSE,
+  template,
+  filename = "",
+  ...
+)
 }
 \arguments{
 \item{sdm_output}{A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 object representing the SDM output spatial layer.}
+
+\item{normalize}{Logical indicating if the combined cells should be
+normalized, i.e. set to a value 0-1 based on cell-wise minimum and
+maximum values, i.e. \code{(value - min)/(max - min)}. Default =
+\code{FALSE}.}
 
 \item{template}{A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 object representing the risk mapping template spatial layer.}

@@ -9,6 +9,12 @@
 #' @param arrival_likelihood_layer A \code{raster::RasterLayer} or
 #'   \code{terra::SpatRaster} object representing the pest arrival likelihood
 #'   spatial layer (a combination of one or more pathway layers).
+#' @param use_fun One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
+#'   union function is intended for probabilities (via \code{1 - sum(1 - x)}).
+#'   Default = \code{"prod"}.
+#' @param na.rm Logical indicating whether or not to ignore \code{"NA"} values
+#'   when applying the combination function (\code{"use_fun"}). Default =
+#'   \code{FALSE}.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing the pest establishment
@@ -24,6 +30,8 @@
 #' @export
 establishment_likelihood <- function(pest_suitability_layer,
                                      arrival_likelihood_layer,
+                                     use_fun = "prod",
+                                     na.rm = FALSE,
                                      filename = "", ...) {
 
   # Convert layers to terra
@@ -39,6 +47,7 @@ establishment_likelihood <- function(pest_suitability_layer,
   # Combine via multiplication
   return(combine_layers(terra::rast(list(pest_suitability_layer,
                                          arrival_likelihood_layer)),
-                        use_fun = "prod",
+                        use_fun = use_fun,
+                        na.rm = na.rm,
                         filename = filename, ...))
 }

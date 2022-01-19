@@ -7,6 +7,12 @@
 #'   object representing the abiotic (SDM) spatial layer.
 #' @param biotic_layer A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 #'   object representing the biotic (host) spatial layer.
+#' @param use_fun One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
+#'   union function is intended for probabilities (via \code{1 - sum(1 - x)}).
+#'   Default = \code{"prod"}.
+#' @param na.rm Logical indicating whether or not to ignore \code{"NA"} values
+#'   when applying the combination function (\code{"use_fun"}). Default =
+#'   \code{FALSE}.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing the combined pest
@@ -20,6 +26,8 @@
 #' @include combine_layers.R
 #' @export
 pest_suitability <- function(abiotic_layer, biotic_layer,
+                             use_fun = "prod",
+                             na.rm = FALSE,
                              filename = "", ...) {
 
   # Convert layers to terra
@@ -32,6 +40,7 @@ pest_suitability <- function(abiotic_layer, biotic_layer,
 
   # Combine via multiplication
   return(combine_layers(terra::rast(list(abiotic_layer, biotic_layer)),
-                        use_fun = "prod",
+                        use_fun = use_fun,
+                        na.rm = na.rm,
                         filename = filename, ...))
 }

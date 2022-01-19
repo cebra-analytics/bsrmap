@@ -4,12 +4,26 @@
 \alias{arrival_likelihood}
 \title{Pest arrival likelihood risk mapping layer}
 \usage{
-arrival_likelihood(pathway_likelihood_layers, filename = "", ...)
+arrival_likelihood(
+  pathway_likelihood_layers,
+  use_fun = "union",
+  na.rm = TRUE,
+  filename = "",
+  ...
+)
 }
 \arguments{
 \item{pathway_likelihood_layers}{A multi-layer \code{raster::Raster*} or
 \code{terra::SpatRaster} object representing the pathway likelihood layers
 to combine (union) to form a pest arrival likelihood layer.}
+
+\item{use_fun}{One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
+union function is intended for probabilities (via \code{1 - sum(1 - x)}).
+Default = \code{"union"}.}
+
+\item{na.rm}{Logical indicating whether or not to ignore \code{"NA"} values
+when applying the combination function (\code{"use_fun"}). Default =
+\code{TRUE}.}
 
 \item{filename}{Optional file writing path (character).}
 

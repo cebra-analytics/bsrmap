@@ -4,7 +4,14 @@
 \alias{pest_suitability}
 \title{Pest suitability risk mapping layer}
 \usage{
-pest_suitability(abiotic_layer, biotic_layer, filename = "", ...)
+pest_suitability(
+  abiotic_layer,
+  biotic_layer,
+  use_fun = "prod",
+  na.rm = FALSE,
+  filename = "",
+  ...
+)
 }
 \arguments{
 \item{abiotic_layer}{A \code{raster::RasterLayer} or \code{terra::SpatRaster}
@@ -12,6 +19,14 @@ object representing the abiotic (SDM) spatial layer.}
 
 \item{biotic_layer}{A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 object representing the biotic (host) spatial layer.}
+
+\item{use_fun}{One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
+union function is intended for probabilities (via \code{1 - sum(1 - x)}).
+Default = \code{"prod"}.}
+
+\item{na.rm}{Logical indicating whether or not to ignore \code{"NA"} values
+when applying the combination function (\code{"use_fun"}). Default =
+\code{FALSE}.}
 
 \item{filename}{Optional file writing path (character).}
 

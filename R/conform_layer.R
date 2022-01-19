@@ -7,7 +7,7 @@
 #'   object representing the spatial layer to be conformed.
 #' @param y A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 #'   object representing the spatial layer to conform to.
-#' @param normalize Logical indicating if the combined cells should be
+#' @param normalize Logical indicating if the conformed cells should be
 #'   normalized, i.e. set to a value 0-1 based on cell-wise minimum and
 #'   maximum values, i.e. \code{(value - min)/(max - min)}. Default =
 #'   \code{FALSE}.
