@@ -26,8 +26,8 @@
 #' @include conform_layer.R
 #' @export
 abiotic_suitability <- function(sdm_output,
-                                normalize = FALSE,
                                 template,
+                                normalize = FALSE,
                                 filename = "", ...) {
   return(conform_layer(sdm_output, template,
                        normalize = normalize,
