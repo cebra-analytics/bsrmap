@@ -10,7 +10,8 @@
 #'   the distance weight layer from points \code{y}, or a for a pre-calculated
 #'   distance layer (assumed when \code{y} is missing).
 #' @param y Point (feature) data as a \code{data.frame} (or \code{matrix})
-#'   with WGS84 \emph{lon} and \emph{lat} columns.
+#'   with WGS84 \emph{lon} and \emph{lat} columns, and optionally a weights
+#'   column having character name specified in \emph{weights}.
 #' @param beta Numeric parameter passed to the exponential function:
 #'   \code{exp(distance/(1000/beta))}, which transforms cell-to-nearest-point
 #'   or pre-calculated distances (m) to distance-weighted cell values. To
@@ -20,10 +21,11 @@
 #'   to have 50% of the likelihood distributed within 200 km use default:
 #'   \code{log(0.5)/200}).
 #' @param weights Optional (default is none) numeric vector of weights for
-#'   each point (feature) such that the distance-weighted cell values will be
-#'   additionally proportionally weighted. Thus the exponential function
-#'   (above) becomes: the maximum of \code{exp(distance/(1000/beta))*weight}
-#'   for each cell.
+#'   each point (feature), or character name of column or attribute in
+#'   \code{y}, that contains weight values for each point, such that the
+#'   distance-weighted cell values will be additionally proportionally
+#'   weighted. Thus the exponential function (above) becomes: the maximum of
+#'   \code{exp(distance/(1000/beta))*weight} for each cell.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing distance-weighted cell
@@ -77,6 +79,16 @@ distance_weight_layer.SpatRaster <- function(x, y,
     # Check weights - should have the same number of rows as y
     if (is.numeric(weights) && length(weights) != nrow(y)) {
       stop("Weights should have the same number of rows as y.", call. = FALSE)
+    }
+
+    # Weights specified as a column of y
+    if (is.character(weights)) {
+      if (weights %in% names(y)) {
+        weights <- y[, weights]
+      } else {
+        stop(sprintf("Weights column %s is not present in point data y.",
+                     weights), call. = FALSE)
+      }
     }
 
     # Conform y coordinates CRS with x

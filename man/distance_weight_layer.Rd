@@ -40,7 +40,8 @@ the distance weight layer from points \code{y}, or a for a pre-calculated
 distance layer (assumed when \code{y} is missing).}
 
 \item{y}{Point (feature) data as a \code{data.frame} (or \code{matrix})
-with WGS84 \emph{lon} and \emph{lat} columns.}
+with WGS84 \emph{lon} and \emph{lat} columns, and optionally a weights
+column having character name specified in \emph{weights}.}
 
 \item{beta}{Numeric parameter passed to the exponential function:
 \code{exp(distance/(1000/beta))}, which transforms cell-to-nearest-point
@@ -52,10 +53,11 @@ to have 50\% of the likelihood distributed within 200 km use default:
 \code{log(0.5)/200}).}
 
 \item{weights}{Optional (default is none) numeric vector of weights for
-each point (feature) such that the distance-weighted cell values will be
-additionally proportionally weighted. Thus the exponential function
-(above) becomes: the maximum of \code{exp(distance/(1000/beta))*weight}
-for each cell.}
+each point (feature), or character name of column or attribute in
+\code{y}, that contains weight values for each point, such that the
+distance-weighted cell values will be additionally proportionally
+weighted. Thus the exponential function (above) becomes: the maximum of
+\code{exp(distance/(1000/beta))*weight} for each cell.}
 
 \item{filename}{Optional file writing path (character).}
 
