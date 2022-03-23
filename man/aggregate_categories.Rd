@@ -49,8 +49,9 @@ is left \code{NULL} (default) the category values are extracted from the
 \code{x} layer via possible pre-existing categories (if present) or via
 calculating unique cell values (slower).}
 
-\item{selected}{A numeric vector of all possible category values. If this
-is left \code{NULL} (default) no categories will be selected.}
+\item{selected}{A numeric vector of selected category values for inclusion
+in the resultant aggregate layer. If this is left \code{NULL} (default) no
+categories will be selected.}
 
 \item{binarize}{Logical indicating if the aggregated cells should be
 binarized, i.e. set to 1 for cells containing selected category values.
