@@ -58,12 +58,17 @@ aggregate_layer.SpatRaster <- function(x, y,
   aggregation_factor <- unique(terra::res(y) %/% terra::res(x_proj))
   if (any(aggregation_factor > 1)) {
 
-    # Project when CRS or extent are not equal (retain resolution)
+    # Project when different CRS or x has larger extent (retain resolution)
     if (!equivalent_crs(x, y) ||
-        terra::ext(x_proj) != terra::ext(y)) {
+        terra::ext(x_proj) > terra::ext(y)) {
+      if (terra::ext(x_proj) > terra::ext(y)) { # use the smaller extent
+        project_ext <- terra::ext(y)
+      } else {
+        project_ext <- terra::ext(x_proj)
+      }
       y_template <- terra::rast(crs = terra::crs(y),
-                                extent = terra::ext(y),
-                                resolution = terra::res(x))
+                                extent = project_ext,
+                                resolution = terra::res(x_proj))
       message("Projecting raster ...")
       x <- terra::project(x, y_template)
     }
