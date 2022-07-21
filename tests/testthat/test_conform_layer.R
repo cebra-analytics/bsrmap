@@ -31,7 +31,7 @@ test_that("normalizes and binarizes raster", {
   TEST_DIRECTORY <- test_path("test_inputs")
   suit_rast <- terra::rast(file.path(TEST_DIRECTORY, "greater_melb.tif"))
   new_layer <- expect_silent(suppressMessages(
-    conform_layer(suit_rast, suit_rast*0, normalize = TRUE)))
+    conform_layer((suit_rast - 0.1)*suit_rast, suit_rast*0, normalize = TRUE)))
   expect_equal(min(new_layer[][,1], na.rm = TRUE), 0)
   expect_equal(max(new_layer[][,1], na.rm = TRUE), 1)
   new_layer <- expect_silent(suppressMessages(
