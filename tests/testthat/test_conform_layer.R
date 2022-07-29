@@ -3,7 +3,8 @@ context("conform_layer")
 test_that("conforms CRS", {
   TEST_DIRECTORY <- test_path("test_inputs")
   albers_rast <- terra::rast(file.path(TEST_DIRECTORY, "greater_melb.tif"))
-  lonlat_rast <- terra::rast(file.path(TEST_DIRECTORY, "greater_melb_wgs84.tif"))
+  lonlat_rast <- terra::rast(file.path(TEST_DIRECTORY,
+                                       "greater_melb_wgs84.tif"))
   expect_silent(new_layer <- suppressMessages(
     conform_layer(lonlat_rast, albers_rast*0)))
   expect_true(terra::crs(new_layer) == terra::crs(albers_rast))
