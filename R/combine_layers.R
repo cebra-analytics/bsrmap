@@ -7,7 +7,7 @@
 #' @param x A multi-layer \code{raster::Raster*} or \code{terra::SpatRaster}
 #'   object representing the spatial layers to combine.
 #' @param use_fun One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
-#'   union function is intended for probabilities (via \code{1 - sum(1 - x)}).
+#'   union function is intended for probabilities (via \code{1 - prod(1 - x)}).
 #' @param weights Optional (default is none) numeric vector of weights for
 #'   each layer to be combined via \code{"prod"} or \code{"sum"} only.
 #' @param na.rm Logical indicating whether or not to ignore \code{"NA"} values
