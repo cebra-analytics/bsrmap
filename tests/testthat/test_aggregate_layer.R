@@ -4,7 +4,8 @@ test_that("aggregates and re-samples layer to match template", {
   TEST_DIRECTORY <- test_path("test_inputs")
   aclum_rast <- terra::rast(file.path(TEST_DIRECTORY, "aclum.tif"))
   cropped_ext <- terra::ext(aclum_rast) - c(0, 5000, 0, 5000)
-  template_rast <- terra::crop(terra::rast(file.path(TEST_DIRECTORY, "greater_melb.tif"))*0,
+  template_rast <- terra::crop(terra::rast(file.path(TEST_DIRECTORY,
+                                                     "greater_melb.tif"))*0,
                                cropped_ext)
   expect_silent(aggr_rast <- suppressMessages(
     aggregate_layer(aclum_rast, template_rast, use_fun = "max")))
