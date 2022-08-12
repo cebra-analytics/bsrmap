@@ -41,7 +41,7 @@ combine_layers(
 object representing the spatial layers to combine.}
 
 \item{use_fun}{One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
-union function is intended for probabilities (via \code{1 - sum(1 - x)}).}
+union function is intended for probabilities (via \code{1 - prod(1 - x)}).}
 
 \item{weights}{Optional (default is none) numeric vector of weights for
 each layer to be combined via \code{"prod"} or \code{"sum"} only.}
