@@ -28,15 +28,25 @@ calc_viable_event_pr <- function(n_events, p_viable,
                                  n_sims = 100000, ...) {
 
   # Check n_events and p_viable confidence intervals
-  if (is.numeric(n_events) && length(n_events) != 2 &&
-      n_events[1] < n_events[2]) {
+  if (is.numeric(n_events) && (length(n_events) != 2 ||
+      n_events[1] > n_events[2])) {
     stop("n_events (CI) should have numeric form: (lower, upper).",
          call. = FALSE)
   }
-  if (is.numeric(p_viable) && length(p_viable) != 2 &&
-      p_viable[1] < p_viable[2]) {
+  if (is.numeric(p_viable) && (length(p_viable) != 2 ||
+      p_viable[1] > p_viable[2])) {
     stop("p_viable (CI) should have numeric form: (lower, upper).",
          call. = FALSE)
+  } else if (is.numeric(p_viable) &&
+             (any(p_viable < 0) || any(p_viable > 1))) {
+    stop("p_viable (CI) probability values should be >= 0 and <= 1.",
+         call. = FALSE)
+  }
+  if (p_viable[1] == 0) {
+    p_viable[1] <- 1e-10
+  }
+  if (p_viable[2] == 1) {
+    p_viable[2] <- 1 - 1e-10
   }
 
   ## Calculate leakage number
