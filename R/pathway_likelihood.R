@@ -61,15 +61,19 @@ pathway_likelihood.SpatRaster <- function(pathway_layers,
 
   # Check leakage and establishment viability rate confidence intervals
   if (is.numeric(leakage_rate_ci) &&
-      length(leakage_rate_ci) != 2 &&
-      leakage_rate_ci[1] < leakage_rate_ci[2]) {
+      (length(leakage_rate_ci) != 2 ||
+       leakage_rate_ci[1] > leakage_rate_ci[2])) {
     stop("Leakage rate CI should have numeric form: (lower, upper).",
          call. = FALSE)
   }
   if (is.numeric(viability_rate_ci) &&
-      length(viability_rate_ci) != 2 &&
-      leakage_rate_ci[1] < leakage_rate_ci[2]) {
+      (length(viability_rate_ci) != 2 ||
+       viability_rate_ci[1] > viability_rate_ci[2])) {
     stop("Establishment rate CI should have numeric form: (lower, upper).",
+         call. = FALSE)
+  } else if (is.numeric(viability_rate_ci) &&
+                (any(viability_rate_ci < 0) || any(viability_rate_ci > 1))) {
+    stop("Establishment rate CI probability values should be >= 0 and <= 1.",
          call. = FALSE)
   }
 
