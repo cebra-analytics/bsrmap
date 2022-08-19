@@ -71,7 +71,7 @@ conform_layer.SpatRaster <- function(x, y,
   }
 
   # Conform equivalent CRS
-  if (equivalent_crs(x, y)) {
+  if (!equivalent_crs(x, y)) {
     terra::crs(x) <- terra::crs(y)
   }
 
