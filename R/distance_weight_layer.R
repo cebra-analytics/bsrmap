@@ -103,8 +103,12 @@ distance_weight_layer.SpatRaster <- function(x, y,
       # Calculate cell distances from point (features) y
       # Note: currently implemented with raster::distanceFromPoints
       #       until/if terra::distance is fixed...
-      suppressWarnings(d_rast <- terra::rast(
-        raster::distanceFromPoints(raster::raster(x), y)) + x*0)
+      suppressWarnings({
+        x_rast <- raster::raster(x)
+        raster::crs(x_rast) <- terra::crs(x, proj = TRUE)
+      })
+      d_rast <- terra::rast(raster::distanceFromPoints(x_rast, y)) + x*0
+      terra::crs(d_rast) <- terra::crs(x)
 
     } else { # assume pre-calculated distances
       d_rast <- x
@@ -125,7 +129,10 @@ distance_weight_layer.SpatRaster <- function(x, y,
     # Calculate 'weighted' distance weights
     weight_rast <-  x*0
     w <- terra::values(weight_rast)
-    suppressWarnings(x_rast <- raster::raster(x))
+    suppressWarnings({
+      x_rast <- raster::raster(x)
+      raster::crs(x_rast) <- terra::crs(x, proj = TRUE)
+    })
     for (i in 1:nrow(y)) {
       d <- raster::values(raster::distanceFromPoints(x_rast, y[i, ]))
       w <- pmax(w, exp(d/(1000/beta))*weights[i])

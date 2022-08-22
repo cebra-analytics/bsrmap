@@ -1,6 +1,6 @@
 Package: bsrmap
 Title: Biosecurity Risk Mapping
-Version: 0.0.3
+Version: 0.0.5
 Authors@R: c(
     person("James", "Camac", email = "james.camac@unimelb.edu.au", role = c("aut")),
     person("John", "Baumgartner", email = "john.baumgartner@unimelb.edu.au", role = c("aut")),
@@ -12,19 +12,18 @@ URL: https://github.com/cebra-analytics/bsrmap
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Imports:
-    alphahull (>= 2.2),
-    dplyr (>= 1.0.7),
-    raster (>= 3.5.2),
-    sf (>= 1.0.4),
-    terra (>= 1.4.22)
+    alphahull (>= 2.5),
+    dplyr (>= 1.0.10),
+    raster (>= 3.6.3),
+    sf (>= 1.0.8),
+    terra (>= 1.6.17)
 Suggests:
     knitr,
     rmarkdown,
     testthat
 Collate: 
-    'equivalent_crs.R'
     'combine_layers.R'
     'aggregate_layer.R'
     'conform_layer.R'

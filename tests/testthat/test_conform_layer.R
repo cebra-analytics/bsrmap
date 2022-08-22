@@ -11,7 +11,7 @@ test_that("conforms CRS", {
   expect_silent(new_layer <- suppressMessages(
     conform_layer(albers_rast, lonlat_rast*0)))
   expect_true(terra::crs(new_layer) == terra::crs(lonlat_rast))
-  expect_equal(new_layer[][,1], lonlat_rast[][,1])
+  expect_equal(round(new_layer[][,1], 3), round(lonlat_rast[][,1], 3))
 })
 
 test_that("conforms extent and resolution", {
