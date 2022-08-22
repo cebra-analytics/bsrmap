@@ -24,7 +24,6 @@
 #' @return A \code{terra::SpatRaster} object containing a spatial layer with
 #'   each cell value set to the value of the nearest point from \code{y} when
 #'   within the specified \code{max_distance} range.
-#' @include equivalent_crs.R
 #' @export
 points_to_layer <- function(x, y,
                             name = "predicted",
@@ -76,7 +75,7 @@ points_to_layer.SpatRaster <- function(x, y,
     y <- terra::vect(y, crs = "EPSG:4326")
 
     # Conform the CRS of y to that of x
-    if (!equivalent_crs(x, y)) {
+    if (terra::crs(x) != terra::crs(y)) {
       y <- terra::project(y, terra::crs(x))
     }
   }

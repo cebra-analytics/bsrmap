@@ -21,7 +21,6 @@
 #'   \url{https://github.com/jscamac/edmaps}.
 #' @note Informed by various functions in
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}}.
-#' @include equivalent_crs.R
 #' @export
 aggregate_layer <- function(x, y,
                             use_fun = c("mean", "max", "min",
@@ -59,7 +58,7 @@ aggregate_layer.SpatRaster <- function(x, y,
   if (any(aggregation_factor > 1)) {
 
     # Project when different CRS or x has larger extent (retain resolution)
-    if (!equivalent_crs(x, y) ||
+    if (terra::crs(x) != terra::crs(y) ||
         terra::ext(x_proj) > terra::ext(y)) {
       if (terra::ext(x_proj) > terra::ext(y)) { # use the smaller extent
         project_ext <- terra::ext(y)
@@ -84,10 +83,17 @@ aggregate_layer.SpatRaster <- function(x, y,
 
   # Re-sample when the resolution, CRS or extent are not equal
   if (any(terra::res(x) != terra::res(y)) ||
-      !equivalent_crs(x, y) ||
+      terra::crs(x) != terra::crs(y) ||
       terra::ext(x) != terra::ext(y)) {
-    message("Resampling raster ...")
-    x <- terra::resample(x, y, method = "near")
+    if (terra::crs(x) != terra::crs(y)) {
+      message("Projecting raster ...")
+      x <- terra::project(x, terra::crs(y), method = "near")
+    }
+    if (any(terra::res(x) != terra::res(y)) ||
+        terra::ext(x) != terra::ext(y)) {
+      message("Resampling raster ...")
+      x <- terra::resample(x, y, method = "near")
+    }
   }
 
   # Write to file when required
