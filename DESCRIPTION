@@ -16,9 +16,9 @@ RoxygenNote: 7.2.1
 Imports:
     alphahull (>= 2.5),
     dplyr (>= 1.0.10),
-    raster (>= 3.6.3),
+    raster (>= 3.5.2),
     sf (>= 1.0.8),
-    terra (>= 1.6.17)
+    terra (>= 1.4.22)
 Suggests:
     knitr,
     rmarkdown,
