@@ -67,7 +67,7 @@ points_to_layer.SpatRaster <- function(x, y,
       name <- names(y)[which.max(!names(y) %in% c("lon", "lat"))]
     }
     if (is.null(name) || !name %in% names(y)) {
-      stop("Point y data values should be in column specified by 'name'",
+      stop("Point y data values should be in column specified by 'name'.",
            call. = FALSE)
     }
 
