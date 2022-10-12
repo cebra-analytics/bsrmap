@@ -91,7 +91,7 @@ distribute_features.SpatRaster <- function(x, y,
   y_df <- cbind(ID = 1:nrow(y), terra::as.data.frame(y[,vars]))
 
   # Match the active cells in x with corresponding features in y
-  cell_id <- as.data.frame(terra::cells(x, y))
+  cell_id <- unique(as.data.frame(terra::cells(x, y)))
   cell_id <- dplyr::inner_join(cell_id, x_df, by = c("cell" = "cell"))
 
   # Count the number of active cells corresponding to each feature
