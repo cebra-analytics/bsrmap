@@ -10,6 +10,7 @@ aggregate_layer(
   x,
   y,
   use_fun = c("mean", "max", "min", "median", "sum", "modal"),
+  platform = FALSE,
   filename = "",
   ...
 )
@@ -18,6 +19,7 @@ aggregate_layer(
   x,
   y,
   use_fun = c("mean", "max", "min", "median", "sum", "modal"),
+  platform = FALSE,
   filename = "",
   ...
 )
@@ -26,6 +28,7 @@ aggregate_layer(
   x,
   y,
   use_fun = c("mean", "max", "min", "median", "sum", "modal"),
+  platform = FALSE,
   filename = "",
   ...
 )
@@ -40,6 +43,9 @@ configuration) to aggregate (conform) to.}
 
 \item{use_fun}{One of \code{"mean"}, \code{"max"}, \code{"min"},
 \code{"median"}, \code{"sum"}, or \code{"modal"}.}
+
+\item{platform}{Logical indicating function is to be run in a platform
+environment requiring workaround code. Default = FALSE.}
 
 \item{filename}{Optional file writing path (character).}
 

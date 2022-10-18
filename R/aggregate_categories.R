@@ -21,6 +21,8 @@
 #' @param binarize Logical indicating if the aggregated cells should be
 #'   binarized, i.e. set to 1 for cells containing selected category values.
 #'   Default = TRUE.
+#' @param platform Logical indicating function is to be run in a platform
+#'   environment requiring workaround code. Default = FALSE.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing an aggregated layer of
@@ -38,6 +40,7 @@ aggregate_categories <- function(x, y,
                                  categories = NULL,
                                  selected = NULL,
                                  binarize = TRUE,
+                                 platform = FALSE,
                                  filename = "", ...) {
   UseMethod("aggregate_categories")
 }
@@ -48,12 +51,14 @@ aggregate_categories.Raster <- function(x, y,
                                         categories = NULL,
                                         selected = NULL,
                                         binarize = TRUE,
+                                        platform = FALSE,
                                         filename = "", ...) {
   # Call the terra version of the function
   aggregate_categories(terra::rast(x), y,
                        categories = categories,
                        selected = selected,
                        binarize = binarize,
+                       platform = platform,
                        filename = filename, ...)
 }
 
@@ -63,6 +68,7 @@ aggregate_categories.SpatRaster <- function(x, y,
                                             categories = NULL,
                                             selected = NULL,
                                             binarize = TRUE,
+                                            platform = FALSE,
                                             filename = "", ...) {
   # Convert y to terra
   if (class(y)[1] %in% c("Raster", "RasterStack", "RasterBrick")) {
@@ -86,7 +92,8 @@ aggregate_categories.SpatRaster <- function(x, y,
 
   # Aggregate and/or re-sample
   x_selected <- aggregate_layer(x_selected, y,
-                                use_fun = ifelse(binarize, "max", "mean"))
+                                use_fun = ifelse(binarize, "max", "mean"),
+                                platform = platform)
 
   # Conform
   x_selected <- conform_layer(x_selected, y, filename = filename, ...)

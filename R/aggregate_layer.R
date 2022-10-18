@@ -12,6 +12,8 @@
 #'   configuration) to aggregate (conform) to.
 #' @param use_fun One of \code{"mean"}, \code{"max"}, \code{"min"},
 #'   \code{"median"}, \code{"sum"}, or \code{"modal"}.
+#' @param platform Logical indicating function is to be run in a platform
+#'   environment requiring workaround code. Default = FALSE.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing the aggregated layer.
@@ -25,6 +27,7 @@
 aggregate_layer <- function(x, y,
                             use_fun = c("mean", "max", "min",
                                         "median", "sum", "modal"),
+                            platform = FALSE,
                             filename = "", ...) {
   UseMethod("aggregate_layer")
 }
@@ -34,10 +37,12 @@ aggregate_layer <- function(x, y,
 aggregate_layer.Raster <- function(x, y,
                                    use_fun = c("mean", "max", "min",
                                                "median", "sum", "modal"),
+                                   platform = FALSE,
                                    filename = "", ...) {
   # Call the terra version of the function
   aggregate_layer(terra::rast(x), y,
                   use_fun = use_fun,
+                  platform = platform,
                   filename = filename, ...)
 }
 
@@ -46,6 +51,7 @@ aggregate_layer.Raster <- function(x, y,
 aggregate_layer.SpatRaster <- function(x, y,
                                        use_fun = c("mean", "max", "min",
                                                    "median", "sum", "modal"),
+                                       platform = FALSE,
                                        filename = "", ...) {
   # Convert y to terra
   if (class(y)[1] %in% c("Raster", "RasterStack", "RasterBrick")) {
@@ -53,8 +59,22 @@ aggregate_layer.SpatRaster <- function(x, y,
   }
 
   # Aggregation when resolution y is courser than x
-  x_proj <- terra::project(terra::rast(x), terra::crs(y))
-  aggregation_factor <- unique(terra::res(y) %/% terra::res(x_proj))
+  if (platform) { # workaround code
+    x_proj_res <- terra::res(terra::project(
+      terra::crop(terra::rast(x),
+                  (terra::xyFromCell(x, terra::ncell(x) %/% 2)[1,] +
+                     c(0, 0, terra::res(x)))[c(1,3,2,4)]), terra::crs(y)))
+    x_proj_ext <- terra:: ext(terra::project(
+      terra::rast(crs = terra::crs(x), ext = terra::ext(x),
+                  res = terra::res(terra::project(terra::rast(y),
+                                                  terra::crs(x)))),
+      terra::crs(y)))
+    x_proj <- terra::rast(crs = terra::crs(y), res = x_proj_res,
+                          ext = x_proj_ext)
+  } else {
+    x_proj <- terra::project(terra::rast(x), terra::crs(y))
+  }
+  aggregation_factor <- unique(round(terra::res(y)/terra::res(x_proj)))
   if (any(aggregation_factor > 1)) {
 
     # Project when different CRS or x has larger extent (retain resolution)

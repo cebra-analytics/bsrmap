@@ -12,6 +12,7 @@ aggregate_categories(
   categories = NULL,
   selected = NULL,
   binarize = TRUE,
+  platform = FALSE,
   filename = "",
   ...
 )
@@ -22,6 +23,7 @@ aggregate_categories(
   categories = NULL,
   selected = NULL,
   binarize = TRUE,
+  platform = FALSE,
   filename = "",
   ...
 )
@@ -32,6 +34,7 @@ aggregate_categories(
   categories = NULL,
   selected = NULL,
   binarize = TRUE,
+  platform = FALSE,
   filename = "",
   ...
 )
@@ -56,6 +59,9 @@ categories will be selected.}
 \item{binarize}{Logical indicating if the aggregated cells should be
 binarized, i.e. set to 1 for cells containing selected category values.
 Default = TRUE.}
+
+\item{platform}{Logical indicating function is to be run in a platform
+environment requiring workaround code. Default = FALSE.}
 
 \item{filename}{Optional file writing path (character).}
 
