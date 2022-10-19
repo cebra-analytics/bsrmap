@@ -13,6 +13,8 @@
 #'   \code{FALSE}.
 #' @param binarize Logical indicating if the combined cells should be
 #'   binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.
+#' @param platform Logical indicating function is to be run in a platform
+#'   environment requiring workaround code. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing the conformed layer.
@@ -28,6 +30,7 @@
 conform_layer <- function(x, y,
                           normalize = FALSE,
                           binarize = FALSE,
+                          platform = FALSE,
                           filename = "", ...) {
   UseMethod("conform_layer")
 }
@@ -37,12 +40,14 @@ conform_layer <- function(x, y,
 conform_layer.Raster <- function(x, y,
                                  normalize = FALSE,
                                  binarize = FALSE,
+                                 platform = FALSE,
                                  filename = "", ...) {
 
   # Call the terra version of the function
   conform_layer(terra::rast(x), y,
                 normalize = normalize,
                 binarize = binarize,
+                platform = platform,
                 filename = filename, ...)
 }
 
@@ -51,6 +56,7 @@ conform_layer.Raster <- function(x, y,
 conform_layer.SpatRaster <- function(x, y,
                                      normalize = FALSE,
                                      binarize = FALSE,
+                                     platform = FALSE,
                                      filename = "", ...) {
   # Convert y to terra
   if (class(y)[1] %in% c("Raster", "RasterStack", "RasterBrick")) {
@@ -58,10 +64,25 @@ conform_layer.SpatRaster <- function(x, y,
   }
 
   # Conform resolution, CRS and extent via aggregation and/or re-sampling
-  x_proj <- terra::project(terra::rast(x), terra::crs(y)) # empty
-  aggregation_factor <- unique(terra::res(y) %/% terra::res(x_proj))
+  if (platform) { # workaround code
+    x_proj_res <- terra::res(terra::project(
+      terra::crop(terra::rast(x),
+                  (terra::xyFromCell(x, terra::ncell(x) %/% 2)[1,] +
+                     c(0, 0, terra::res(x)))[c(1,3,2,4)]), terra::crs(y)))
+    x_proj_ext <- terra:: ext(terra::project(
+      terra::rast(crs = terra::crs(x), ext = terra::ext(x),
+                  res = terra::res(terra::project(terra::rast(y),
+                                                  terra::crs(x)))),
+      terra::crs(y)))
+    x_proj <- terra::rast(crs = terra::crs(y), res = x_proj_res,
+                          ext = x_proj_ext)
+  } else {
+    x_proj <- terra::project(terra::rast(x), terra::crs(y))
+  }
+  aggregation_factor <- unique(round(terra::res(y)/terra::res(x_proj)))
   if (any(aggregation_factor > 1)) { # resolution y is courser than x
-    x <- aggregate_layer(x, y, use_fun = "mean") # includes re-sampling
+    x <- aggregate_layer(x, y, use_fun = "mean",
+                         platform = platform) # includes re-sampling
   } else if (any(terra::res(x) != terra::res(y)) ||
              terra::crs(x) != terra::crs(y) ||
              terra::ext(x) != terra::ext(y)) {
