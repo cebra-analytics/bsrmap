@@ -45,7 +45,7 @@ configuration) to aggregate (conform) to.}
 \code{"median"}, \code{"sum"}, or \code{"modal"}.}
 
 \item{platform}{Logical indicating function is to be run in a platform
-environment requiring workaround code. Default = FALSE.}
+environment requiring workaround code. Default = \code{FALSE}.}
 
 \item{filename}{Optional file writing path (character).}
 

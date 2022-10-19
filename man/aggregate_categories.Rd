@@ -58,10 +58,10 @@ categories will be selected.}
 
 \item{binarize}{Logical indicating if the aggregated cells should be
 binarized, i.e. set to 1 for cells containing selected category values.
-Default = TRUE.}
+Default = \code{TRUE}.}
 
 \item{platform}{Logical indicating function is to be run in a platform
-environment requiring workaround code. Default = FALSE.}
+environment requiring workaround code. Default = \code{FALSE}.}
 
 \item{filename}{Optional file writing path (character).}
 

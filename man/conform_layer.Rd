@@ -6,11 +6,35 @@
 \alias{conform_layer.SpatRaster}
 \title{Conform spatial layer}
 \usage{
-conform_layer(x, y, normalize = FALSE, binarize = FALSE, filename = "", ...)
+conform_layer(
+  x,
+  y,
+  normalize = FALSE,
+  binarize = FALSE,
+  platform = FALSE,
+  filename = "",
+  ...
+)
 
-\method{conform_layer}{Raster}(x, y, normalize = FALSE, binarize = FALSE, filename = "", ...)
+\method{conform_layer}{Raster}(
+  x,
+  y,
+  normalize = FALSE,
+  binarize = FALSE,
+  platform = FALSE,
+  filename = "",
+  ...
+)
 
-\method{conform_layer}{SpatRaster}(x, y, normalize = FALSE, binarize = FALSE, filename = "", ...)
+\method{conform_layer}{SpatRaster}(
+  x,
+  y,
+  normalize = FALSE,
+  binarize = FALSE,
+  platform = FALSE,
+  filename = "",
+  ...
+)
 }
 \arguments{
 \item{x}{A \code{raster::RasterLayer} or \code{terra::SpatRaster}
@@ -26,6 +50,9 @@ maximum values, i.e. \code{(value - min)/(max - min)}. Default =
 
 \item{binarize}{Logical indicating if the combined cells should be
 binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.}
+
+\item{platform}{Logical indicating function is to be run in a platform
+environment requiring workaround code. Default = \code{FALSE}.}
 
 \item{filename}{Optional file writing path (character).}
 
