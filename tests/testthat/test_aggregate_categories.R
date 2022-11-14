@@ -11,7 +11,8 @@ test_that("aggregates category layer via selected categories", {
     aggregate_categories(aclum_rast, template_rast,
                          selected = c(220, 330, 560, 620))))
   expect_true(terra::ext(aggr_rast) == terra::ext(template_rast))
-  expect_true(terra::crs(aggr_rast) == terra::crs(template_rast))
+  expect_true(terra::crs(aggr_rast, proj = TRUE) ==
+                terra::crs(template_rast, proj = TRUE))
   expect_true(all(terra::res(aggr_rast) == terra::res(template_rast)))
   value_matrix <- matrix(terra::crop(aclum_rast, cropped_ext)[],
                          nrow = 100, byrow = TRUE)

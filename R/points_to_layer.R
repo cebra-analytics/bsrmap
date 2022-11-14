@@ -75,7 +75,7 @@ points_to_layer.SpatRaster <- function(x, y,
     y <- terra::vect(y, crs = "EPSG:4326")
 
     # Conform the CRS of y to that of x
-    if (terra::crs(x) != terra::crs(y)) {
+    if (terra::crs(x, proj = TRUE) != terra::crs(y, proj = TRUE)) {
       y <- terra::project(y, terra::crs(x))
     }
   }

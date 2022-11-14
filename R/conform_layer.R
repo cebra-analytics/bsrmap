@@ -84,9 +84,9 @@ conform_layer.SpatRaster <- function(x, y,
     x <- aggregate_layer(x, y, use_fun = "mean",
                          platform = platform) # includes re-sampling
   } else if (any(terra::res(x) != terra::res(y)) ||
-             terra::crs(x) != terra::crs(y) ||
+             terra::crs(x, proj = TRUE) != terra::crs(y, proj = TRUE) ||
              terra::ext(x) != terra::ext(y)) {
-    if (terra::crs(x) != terra::crs(y)) {
+    if (terra::crs(x, proj = TRUE) != terra::crs(y, proj = TRUE)) {
       message("Projecting raster ...")
       x <- terra::project(x, terra::crs(y), method = "near")
     }
