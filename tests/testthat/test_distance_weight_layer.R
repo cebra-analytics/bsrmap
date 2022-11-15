@@ -40,13 +40,14 @@ test_that("calculates distance weight layer with weights", {
                                              crs = "EPSG:4326"), "EPSG:3577")
   dist_rast_1 <- (terra::distance(template_rast, example_vect[1,])*
                     (template_rast + 1))
-  dist_rast_1 <- exp(dist_rast_1/(1000/-0.03))*0.5
+  dist_rast_1 <- exp(dist_rast_1/(1000/-0.03))
+  dist_rast_1 <- dist_rast_1/sum(dist_rast_1[], na.rm = TRUE)*1
   dist_rast_2 <- (terra::distance(template_rast, example_vect[2,])*
                     (template_rast + 1))
-  dist_rast_2 <- exp(dist_rast_2/(1000/-0.03))*1.0
-  expect_rast <- ((dist_rast_1 >= dist_rast_2)*dist_rast_1 +
-                    (dist_rast_1 < dist_rast_2)*dist_rast_2)
+  dist_rast_2 <- exp(dist_rast_2/(1000/-0.03))
+  dist_rast_2 <- dist_rast_2/sum(dist_rast_2[], na.rm = TRUE)*2
+  expect_rast <- dist_rast_1 + dist_rast_2
   expect_silent(dist_w_rast <- distance_weight_layer(
-    template_rast, example_pts, beta = -0.03,weights = "weights"))
+    template_rast, example_pts, beta = -0.03, weights = "weights"))
   expect_equal(dist_w_rast[][,1], expect_rast[][,1])
 })

@@ -123,19 +123,18 @@ distance_weight_layer.SpatRaster <- function(x, y,
 
   } else {
 
-    # Normalize weights
-    weights <- weights/max(weights)
-
     # Calculate 'weighted' distance weights
     weight_rast <-  x*0
     w <- terra::values(weight_rast)
+    w_1 <- w + 1
     suppressWarnings({
       x_rast <- raster::raster(x)
       raster::crs(x_rast) <- terra::crs(x, proj = TRUE)
     })
     for (i in 1:nrow(y)) {
       d <- raster::values(raster::distanceFromPoints(x_rast, y[i, ]))
-      w <- pmax(w, exp(d/(1000/beta))*weights[i])
+      v <- exp(d/(1000/beta))*w_1
+      w <- w + v/sum(v, na.rm = TRUE)*weights[i]
     }
 
     # Write to file when required
