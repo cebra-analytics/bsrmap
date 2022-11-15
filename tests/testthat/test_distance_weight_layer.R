@@ -50,4 +50,5 @@ test_that("calculates distance weight layer with weights", {
   expect_silent(dist_w_rast <- distance_weight_layer(
     template_rast, example_pts, beta = -0.03, weights = "weights"))
   expect_equal(dist_w_rast[][,1], expect_rast[][,1])
+  expect_equal(sum(dist_w_rast[], na.rm = TRUE), 3)
 })
