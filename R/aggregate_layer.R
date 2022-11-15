@@ -89,7 +89,7 @@ aggregate_layer.SpatRaster <- function(x, y,
                                 extent = project_ext,
                                 resolution = terra::res(x_proj))
       message("Projecting raster ...")
-      x <- terra::project(x, y_template)
+      x <- terra::project(x, y_template, method = "near")
     }
 
     # Aggregate
