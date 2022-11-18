@@ -96,6 +96,8 @@ conform_layer.SpatRaster <- function(x, y,
       message("Resampling raster ...")
       x <- terra::resample(x, y, method = "near")
     }
+  } else if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
+    terra::crs(x) <- terra::crs(y)
   }
 
   # Normalize when required

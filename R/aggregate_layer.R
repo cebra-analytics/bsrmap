@@ -90,6 +90,8 @@ aggregate_layer.SpatRaster <- function(x, y,
                                 resolution = terra::res(x_proj))
       message("Projecting raster ...")
       x <- terra::project(x, y_template, method = "near")
+    } else if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
+      terra::crs(x) <- terra::crs(y)
     }
 
     # Aggregate

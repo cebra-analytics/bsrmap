@@ -67,6 +67,8 @@ distribute_features.SpatRaster <- function(x, y,
     # Conform the CRS of y to that of x
     if (!equivalent_crs(x, y)) {
       y <- terra::project(y, terra::crs(x))
+    } else if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
+      terra::crs(y) <- terra::crs(x)
     }
   }
 
