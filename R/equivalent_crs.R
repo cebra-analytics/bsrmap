@@ -33,7 +33,6 @@ equivalent_crs.SpatRaster <- function(x, y, ...) {
     y <- terra::rast(y)
   }
 
-  # Eliminate the "towgs84" element in the CRS projection strings
-  return(sub("..towgs84=[^[:space:]]*", "", terra::crs(x, proj = TRUE)) ==
-           sub("..towgs84=[^[:space:]]*", "", terra::crs(y, proj = TRUE)))
+  # Use sf CRS object comparison
+  return(sf::st_crs(terra::crs(x)) == sf::st_crs(terra::crs(y)))
 }
