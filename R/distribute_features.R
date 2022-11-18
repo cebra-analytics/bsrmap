@@ -27,6 +27,7 @@
 #' @note Generalized modified version of
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}} functionality for
 #'   distributing polygons across raster cells.
+#' @include equivalent_crs.R
 #' @export
 distribute_features <- function(x, y,
                                 vars = NULL,
@@ -64,7 +65,7 @@ distribute_features.SpatRaster <- function(x, y,
     }
 
     # Conform the CRS of y to that of x
-    if (terra::crs(x, proj = TRUE) != terra::crs(y, proj = TRUE)) {
+    if (!equivalent_crs(x, y)) {
       y <- terra::project(y, terra::crs(x))
     }
   }

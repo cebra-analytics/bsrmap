@@ -1,6 +1,6 @@
 Package: bsrmap
 Title: Biosecurity Risk Mapping
-Version: 0.0.6
+Version: 0.0.7
 Authors@R: c(
     person("James", "Camac", email = "james.camac@unimelb.edu.au", role = c("aut")),
     person("John", "Baumgartner", email = "john.baumgartner@unimelb.edu.au", role = c("aut")),
@@ -24,6 +24,7 @@ Suggests:
     rmarkdown,
     testthat
 Collate: 
+    'equivalent_crs.R'
     'combine_layers.R'
     'aggregate_layer.R'
     'conform_layer.R'

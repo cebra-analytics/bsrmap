@@ -26,6 +26,7 @@
 #'   \code{\href{edmaps}{https://github.com/jscamac/edmaps}}.
 #' @include aggregate_layer.R
 #' @include combine_layers.R
+#' @include equivalent_crs.R
 #' @export
 conform_layer <- function(x, y,
                           normalize = FALSE,
@@ -84,9 +85,9 @@ conform_layer.SpatRaster <- function(x, y,
     x <- aggregate_layer(x, y, use_fun = "mean",
                          platform = platform) # includes re-sampling
   } else if (any(terra::res(x) != terra::res(y)) ||
-             terra::crs(x, proj = TRUE) != terra::crs(y, proj = TRUE) ||
+             !equivalent_crs(x, y) ||
              terra::ext(x) != terra::ext(y)) {
-    if (terra::crs(x, proj = TRUE) != terra::crs(y, proj = TRUE)) {
+    if (!equivalent_crs(x, y)) {
       message("Projecting raster ...")
       x <- terra::project(x, terra::crs(y), method = "near")
     }
