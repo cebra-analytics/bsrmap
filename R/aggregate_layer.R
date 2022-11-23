@@ -59,6 +59,11 @@ aggregate_layer.SpatRaster <- function(x, y,
     y <- terra::rast(y)
   }
 
+  # Make CRS equal when equivalent but not equal
+  if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
+    terra::crs(x) <- terra::crs(y)
+  }
+
   # Aggregation when resolution y is courser than x
   if (platform) { # workaround code
     x_proj_res <- terra::res(terra::project(
@@ -90,8 +95,6 @@ aggregate_layer.SpatRaster <- function(x, y,
                                 resolution = terra::res(x_proj))
       message("Projecting raster ...")
       x <- terra::project(x, y_template, method = "near")
-    } else if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
-      terra::crs(x) <- terra::crs(y)
     }
 
     # Aggregate

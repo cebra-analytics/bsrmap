@@ -64,6 +64,11 @@ conform_layer.SpatRaster <- function(x, y,
     y <- terra::rast(y)
   }
 
+  # Make CRS equal when equivalent but not equal
+  if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
+    terra::crs(x) <- terra::crs(y)
+  }
+
   # Conform resolution, CRS and extent via aggregation and/or re-sampling
   if (platform) { # workaround code
     x_proj_res <- terra::res(terra::project(
@@ -96,8 +101,6 @@ conform_layer.SpatRaster <- function(x, y,
       message("Resampling raster ...")
       x <- terra::resample(x, y, method = "near")
     }
-  } else if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
-    terra::crs(x) <- terra::crs(y)
   }
 
   # Normalize when required
