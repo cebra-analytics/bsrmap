@@ -2,8 +2,11 @@
 #'
 #' Calculates a distance-weighted spatial layer based on the proximity of each
 #' cell to a series of points (features), or via a pre-calculated distance
-#' layer. Each cell is weighted via a negative exponential function applied to
-#' the distance of the nearest point or pre-calculated distances.
+#' layer. Each cell is weighted via a negative exponential function for
+#' calculating values that decay with distance from each point. Optional
+#' weights may be assigned to the points (features), in which case the
+#' proximity values are calculated at each cell via weighted sums, otherwise
+#' they are calculated using the nearest point (feature) to each cell.
 #'
 #' @param x A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 #'   object representing the spatial configuration (template) for calculating
@@ -16,16 +19,17 @@
 #'   \code{exp(distance/(1000/beta))}, which transforms cell-to-nearest-point
 #'   or pre-calculated distances (m) to distance-weighted cell values. To
 #'   generate a distribution that ensures a proportion \emph{p} of a pathway
-#'   likelihood is distributed within distance of the nearest point (feature)
-#'   or pre-calculated distance \emph{d}, specify \code{beta=log(p)/d} (e.g.
-#'   to have 50% of the likelihood distributed within 200 km use default:
+#'   likelihood is distributed within distance of each point (feature) or
+#'   pre-calculated distance \emph{d}, specify \code{beta=log(p)/d} (e.g. to
+#'   have 50% of the likelihood distributed within 200 km use default:
 #'   \code{log(0.5)/200}).
-#' @param weights Optional (default is none) numeric vector of weights for
-#'   each point (feature), or character name of column or attribute in
-#'   \code{y}, that contains weight values for each point, such that the
-#'   distance-weighted cell values will be additionally proportionally
-#'   weighted. Thus the exponential function (above) becomes: the maximum of
-#'   \code{exp(distance/(1000/beta))*weight} for each cell.
+#' @param weights Optional numeric vector of weights for each point (feature),
+#'   or character name of column or attribute in \code{y}, that contains weight
+#'   values for each point, such that the distance-weighted cell values will be
+#'   calculated via weighted sums. Thus the exponential function (above)
+#'   becomes: the sum of \code{exp(distance/(1000/beta))*weight} for each cell.
+#'   Default is none (\code{NULL}), in which case the distance to the nearest
+#'   point (feature) is used in the exponential function.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing distance-weighted cell
@@ -92,23 +96,16 @@ distance_weight_layer.SpatRaster <- function(x, y,
     }
 
     # Conform y coordinates CRS with x
-    y <- terra::crds(terra::project(terra::vect(y, crs = "EPSG:4326"), x))
+    y <- terra::project(terra::vect(y, crs = "EPSG:4326"), x)
   }
 
   # Are weights present?
-  if (missing(y) || is.null(weights) || all(weights[1] == weights)) {
+  if (missing(y) || is.null(weights)) {
 
     if (!missing(y)) {
 
       # Calculate cell distances from point (features) y
-      # Note: currently implemented with raster::distanceFromPoints
-      #       until/if terra::distance is fixed...
-      suppressWarnings({
-        x_rast <- raster::raster(x)
-        raster::crs(x_rast) <- terra::crs(x, proj = TRUE)
-      })
-      d_rast <- terra::rast(raster::distanceFromPoints(x_rast, y)) + x*0
-      terra::crs(d_rast) <- terra::crs(x)
+      d_rast <- terra::distance(x, y) + x*0
 
     } else { # assume pre-calculated distances
       d_rast <- x
@@ -126,15 +123,9 @@ distance_weight_layer.SpatRaster <- function(x, y,
     # Calculate 'weighted' distance weights
     weight_rast <-  x*0
     w <- terra::values(weight_rast)
-    w_1 <- w + 1
-    suppressWarnings({
-      x_rast <- raster::raster(x)
-      raster::crs(x_rast) <- terra::crs(x, proj = TRUE)
-    })
     for (i in 1:nrow(y)) {
-      d <- raster::values(raster::distanceFromPoints(x_rast, y[i, ]))
-      v <- exp(d/(1000/beta))*w_1
-      w <- w + v/sum(v, na.rm = TRUE)*weights[i]
+      d <- terra::values(terra::distance(x, y[i, ]))
+      w <- w + exp(d/(1000/beta))*weights[i]
     }
 
     # Write to file when required

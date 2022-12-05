@@ -47,17 +47,18 @@ column having character name specified in \emph{weights}.}
 \code{exp(distance/(1000/beta))}, which transforms cell-to-nearest-point
 or pre-calculated distances (m) to distance-weighted cell values. To
 generate a distribution that ensures a proportion \emph{p} of a pathway
-likelihood is distributed within distance of the nearest point (feature)
-or pre-calculated distance \emph{d}, specify \code{beta=log(p)/d} (e.g.
-to have 50\% of the likelihood distributed within 200 km use default:
+likelihood is distributed within distance of each point (feature) or
+pre-calculated distance \emph{d}, specify \code{beta=log(p)/d} (e.g. to
+have 50\% of the likelihood distributed within 200 km use default:
 \code{log(0.5)/200}).}
 
-\item{weights}{Optional (default is none) numeric vector of weights for
-each point (feature), or character name of column or attribute in
-\code{y}, that contains weight values for each point, such that the
-distance-weighted cell values will be additionally proportionally
-weighted. Thus the exponential function (above) becomes: the maximum of
-\code{exp(distance/(1000/beta))*weight} for each cell.}
+\item{weights}{Optional numeric vector of weights for each point (feature),
+or character name of column or attribute in \code{y}, that contains weight
+values for each point, such that the distance-weighted cell values will be
+calculated via weighted sums. Thus the exponential function (above)
+becomes: the sum of \code{exp(distance/(1000/beta))*weight} for each cell.
+Default is none (\code{NULL}), in which case the distance to the nearest
+point (feature) is used in the exponential function.}
 
 \item{filename}{Optional file writing path (character).}
 
@@ -70,8 +71,11 @@ values.
 \description{
 Calculates a distance-weighted spatial layer based on the proximity of each
 cell to a series of points (features), or via a pre-calculated distance
-layer. Each cell is weighted via a negative exponential function applied to
-the distance of the nearest point or pre-calculated distances.
+layer. Each cell is weighted via a negative exponential function for
+calculating values that decay with distance from each point. Optional
+weights may be assigned to the points (features), in which case the
+proximity values are calculated at each cell via weighted sums, otherwise
+they are calculated using the nearest point (feature) to each cell.
 }
 \note{
 Generalized modified version of corresponding distance-weight
