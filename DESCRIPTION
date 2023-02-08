@@ -1,6 +1,6 @@
 Package: bsrmap
 Title: Biosecurity Risk Mapping
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("James", "Camac", email = "james.camac@unimelb.edu.au", role = c("aut")),
     person("John", "Baumgartner", email = "john.baumgartner@unimelb.edu.au", role = c("aut")),
@@ -12,7 +12,7 @@ URL: https://github.com/cebra-analytics/bsrmap
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports:
     alphahull (>= 2.5),
     dplyr (>= 1.0.10),
@@ -41,3 +41,4 @@ Collate:
     'pathway_likelihood.R'
     'pest_suitability.R'
     'points_to_layer.R'
+    'transform_layer.R'
