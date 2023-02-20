@@ -12,6 +12,7 @@ buffered_hull_layer(
   hull = c("alpha", "convex", "none"),
   alpha = NULL,
   buffer = NULL,
+  mask = FALSE,
   filename = "",
   ...
 )
@@ -22,6 +23,7 @@ buffered_hull_layer(
   hull = c("alpha", "convex", "none"),
   alpha = NULL,
   buffer = NULL,
+  mask = FALSE,
   filename = "",
   ...
 )
@@ -32,6 +34,7 @@ buffered_hull_layer(
   hull = c("alpha", "convex", "none"),
   alpha = NULL,
   buffer = NULL,
+  mask = FALSE,
   filename = "",
   ...
 )
@@ -58,6 +61,10 @@ around points \code{y} when no hull \code{"none"} is selected. The value
 should be in meters when template layer \code{x} coordinates (or CRS) are
 in WGS84 longitudes and latitudes, otherwise use the same units as the
 coordinates (typically also in meters).}
+
+\item{mask}{Logical to indicate if points \code{y} are only included when
+they are within the finite (non-NA) cells of the template \code{x}.
+Default is \code{FALSE}.}
 
 \item{filename}{Optional file writing path (character).}
 
