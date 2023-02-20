@@ -86,9 +86,11 @@ buffered_hull_layer.SpatRaster <- function(x, y,
 
   # Match the points to the non-NA region defined by the template x
   y_vect <- terra::vect(unique(y), crs = terra::crs(x))
+  matched <- terra::extract(x, y_vect)
   if (mask) {
-    matched <- terra::extract(x, y_vect)
     y_vect <- y_vect[matched[which(is.finite(matched[, 2])), 1]]
+  } else {
+    y_vect <- y_vect[matched[, 1]]
   }
 
   # Fit a hull
