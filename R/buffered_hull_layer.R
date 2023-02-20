@@ -20,9 +20,6 @@
 #'   should be in meters when template layer \code{x} coordinates (or CRS) are
 #'   in WGS84 longitudes and latitudes, otherwise use the same units as the
 #'   coordinates (typically also in meters).
-#' @param mask Logical to indicate if points \code{y} are only included when
-#'   they are within the finite (non-NA) cells of the template \code{x}.
-#'   Default is \code{FALSE}.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing the calculated buffered
@@ -38,7 +35,6 @@ buffered_hull_layer <- function(x, y,
                                 hull = c("alpha", "convex", "none"),
                                 alpha = NULL,
                                 buffer = NULL,
-                                mask = FALSE,
                                 filename = "", ...) {
   UseMethod("buffered_hull_layer")
 }
@@ -49,7 +45,6 @@ buffered_hull_layer.Raster <- function(x, y,
                                        hull = c("alpha", "convex", "none"),
                                        alpha = NULL,
                                        buffer = NULL,
-                                       mask = FALSE,
                                        filename = "", ...) {
   # Call the terra version of the function
   buffered_hull_layer(terra::rast(x), y,
@@ -65,7 +60,6 @@ buffered_hull_layer.SpatRaster <- function(x, y,
                                            hull = c("alpha", "convex", "none"),
                                            alpha = NULL,
                                            buffer = NULL,
-                                           mask = FALSE,
                                            filename = "", ...) {
   if (!missing(y)) {
 
@@ -84,14 +78,14 @@ buffered_hull_layer.SpatRaster <- function(x, y,
     y <- terra::crds(terra::project(terra::vect(y, crs = "EPSG:4326"), x))
   }
 
-  # Match the points to the non-NA region defined by the template x
-  y_vect <- terra::vect(unique(y), crs = terra::crs(x))
-  matched <- terra::extract(x, y_vect)
-  if (mask) {
-    y_vect <- y_vect[matched[which(is.finite(matched[, 2])), 1]]
-  } else {
-    y_vect <- y_vect[matched[, 1]]
+  # Unique y to avoid duplicates error in ahull
+  if (!terra::is.lonlat(x)) { # round to m
+    y <- round(y)
   }
+  y <- unique(y)
+
+  # Spatial vector
+  y_vect <- terra::vect(y, crs = terra::crs(x))
 
   # Fit a hull
   hull <- match.arg(hull)
@@ -104,7 +98,6 @@ buffered_hull_layer.SpatRaster <- function(x, y,
     }
 
     # Calculate the alpha hull arcs
-    y <- terra::crds(y_vect)
     arcs <- alphahull::ahull(y, alpha = alpha)$arcs
 
     # Construct the arcs as lines
