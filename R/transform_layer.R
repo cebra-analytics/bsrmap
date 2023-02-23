@@ -16,7 +16,8 @@
 #' @param b Numeric parameter for transformation as specified by \code{type}.
 #'   Default (\code{NULL}) implies: \code{0} for \code{"linear"},
 #'   \code{"exponential"}, and \code{"lower"}; \code{1} for \code{"upper"}; and
-#'   \code{exp(1)} (natural) for \code{"logarithmic"}.
+#'   \code{exp(1)} (natural) for \code{"logarithmic"}. Can be set to \code{NA}
+#'   for \code{"lower"} or \code{"upper"} transformations.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing the transformed layer.
@@ -86,8 +87,13 @@ transform_layer.SpatRaster <- function(x,
     } else if (type %in% c("logarithmic")) {
       b <- exp(1)
     }
-  } else if (!is.numeric(b) || length(b) > 1) {
+  } else if (type %in% c("linear", "exponential", "logarithmic") &&
+             (!is.numeric(b) || length(b) > 1)) {
     stop("Parameter 'b' should be a single value numeric.", call. = FALSE)
+  } else if (type %in% c("lower", "upper") &&
+             (!(is.numeric(b) || is.na(b)) || length(b) > 1)) {
+    stop("Parameter 'b' should be a single value numeric or NA.",
+         call. = FALSE)
   }
 
   # Perform transformation
@@ -98,9 +104,17 @@ transform_layer.SpatRaster <- function(x,
   } else if (type == "logarithmic") {
     x <- log(x, base = b)
   } else if (type == "lower") {
-    x <- (x < a)*b + (x >= a)*x
+    if (is.na(b)) {
+      x <- terra::app(x, function(v) ((v >= a) | NA)*v)
+    } else {
+      x <- (x < a)*b + (x >= a)*x
+    }
   } else if (type == "upper") {
-    x <- (x > a)*b + (x <= a)*x
+    if (is.na(b)) {
+      x <- terra::app(x, function(v) ((v <= a) | NA)*v)
+    } else {
+      x <- (x > a)*b + (x <= a)*x
+    }
   }
   names(x) <- sprintf("%s_trans", type)
 

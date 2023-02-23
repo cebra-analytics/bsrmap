@@ -49,7 +49,8 @@ Default (\code{NULL}) implies: \code{1} for \code{"linear"},
 \item{b}{Numeric parameter for transformation as specified by \code{type}.
 Default (\code{NULL}) implies: \code{0} for \code{"linear"},
 \code{"exponential"}, and \code{"lower"}; \code{1} for \code{"upper"}; and
-\code{exp(1)} (natural) for \code{"logarithmic"}.}
+\code{exp(1)} (natural) for \code{"logarithmic"}. Can be set to \code{NA}
+for \code{"lower"} or \code{"upper"} transformations.}
 
 \item{filename}{Optional file writing path (character).}
 

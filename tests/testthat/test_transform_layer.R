@@ -9,6 +9,10 @@ test_that("various transformations", {
                "Parameter 'a' should be a single value numeric.")
   expect_error(transform_layer(suit_rast, b = 1:2),
                "Parameter 'b' should be a single value numeric.")
+  expect_error(transform_layer(suit_rast, b = NA),
+               "Parameter 'b' should be a single value numeric.")
+  expect_error(transform_layer(suit_rast, type = "lower", b = "1"),
+               "Parameter 'b' should be a single value numeric or NA.")
   expect_silent(trans_rast <- transform_layer(suit_rast))
   expect_is(trans_rast, "SpatRaster")
   expect_equal(trans_rast[idx][,1], suit_values)
@@ -35,6 +39,9 @@ test_that("various transformations", {
                                               a = 0.2, b = 0.1))
   expect_equal(trans_rast[idx][,1],
                (suit_values < 0.2)*0.1 + (suit_values >= 0.2)*suit_values)
+  expect_silent(trans_rast <- transform_layer(suit_rast, type = "lower",
+                                              a = 0.2, b = NA))
+  expect_equal(trans_rast[idx][,1], ((suit_values >= 0.2) | NA)*suit_values)
   expect_silent(trans_rast <- transform_layer(suit_rast*2, type = "upper"))
   expect_equal(trans_rast[idx][,1],
                (suit_values > 0.5)*1 + (suit_values <= 0.5)*suit_values*2)
@@ -42,4 +49,7 @@ test_that("various transformations", {
                                               a = 0.5, b = 0.5))
   expect_equal(trans_rast[idx][,1],
                (suit_values > 0.5)*0.5 + (suit_values <= 0.5)*suit_values)
+  expect_silent(trans_rast <- transform_layer(suit_rast, type = "upper",
+                                              a = 0.5, b = NA))
+  expect_equal(trans_rast[idx][,1], ((suit_values <= 0.5) | NA)*suit_values)
 })
