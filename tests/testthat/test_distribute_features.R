@@ -11,15 +11,18 @@ test_that("distributes features across a template raster", {
                                terra::buffer(containers, width = 1000))
   expected_rast <- template_rast*0
   for (i in 1:nrow(containers)) {
-    idx <- unique(terra::cells(template_rast, containers[i,])[,2])
-    expected_rast[idx] <- (expected_rast[idx][,1] +
-                             terra::values(containers[i,])[,1]/length(idx))
+    cells_df <- as.data.frame(terra::cells(template_rast, containers[i,],
+                                           exact = TRUE, touches = TRUE))
+    cells_df$weights <- cells_df$weights/sum(cells_df$weights)
+    expected_rast[cells_df$cell] <-
+      (expected_rast[cells_df$cell][,1] +
+         terra::values(containers[i,])[,1]*cells_df$weights)
   }
   expect_silent(distr_rast <- distribute_features(template_rast, containers,
                                                   vars = "Melbourne"))
   expect_equal(sum(distr_rast[][,1], na.rm = TRUE),
                sum(terra::values(containers)))
-  expect_equal(distr_rast[][,1], expected_rast[][,1])
+  expect_equal(round(distr_rast[][,1], 2), round(expected_rast[][,1], 2))
 })
 
 test_that("distributes features across a mask raster", {
@@ -32,16 +35,18 @@ test_that("distributes features across a mask raster", {
   mask_rast[sample(which(is.finite(mask_rast[][,1])), 150)] <- 1
   expected_rast <- mask_rast*0
   for (i in 1:nrow(containers)) {
-    idx <- unique(terra::cells(mask_rast, containers[i,])[,2])
-    idx <- idx[which(mask_rast[idx] > 0)]
-    expected_rast[idx] <- (expected_rast[idx][,1] +
-                             terra::values(containers[i,])[,1]/length(idx))
+    cells_df <- as.data.frame(terra::extract(
+      mask_rast, containers[i,], cells = TRUE, exact = TRUE, touches = TRUE))
+    cells_df <- cells_df[which(cells_df$prod > 0),]
+    cells_df$fraction <- cells_df$fraction/sum(cells_df$fraction)
+    expected_rast[cells_df$cell] <- (expected_rast[cells_df$cell][,1] +
+                                       terra::values(containers[i,])[,1]*cells_df$fraction)
   }
-  cell_df <- unique(terra::cells(mask_rast, containers))
+  cell_df <- unique(terra::cells(mask_rast, containers, touches = TRUE))
   avail <- unique(cell_df[which(mask_rast[cell_df[,2]][,1] > 0), 1])
   expect_silent(distr_rast <- distribute_features(mask_rast, containers,
                                                   vars = "Melbourne"))
   expect_equal(sum(distr_rast[][,1], na.rm = TRUE),
                sum(terra::values(containers)[avail,1]))
-  expect_equal(distr_rast[][,1], expected_rast[][,1])
+  expect_equal(round(distr_rast[][,1], 2), round(expected_rast[][,1], 2))
 })

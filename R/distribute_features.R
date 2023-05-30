@@ -72,54 +72,61 @@ distribute_features.SpatRaster <- function(x, y,
     }
   }
 
-  # Only use features in y that are entirely within the extent of x
-  within_x <- sapply(1:nrow(y), function (i) {
-    (terra::xmin(y[i]) >= terra::xmin(x) &
-       terra::xmax(y[i]) <= terra::xmax(x) &
-       terra::ymin(y[i]) >= terra::ymin(x) &
-       terra::ymax(y[i]) <= terra::ymax(x)
-    )
-  })
-  y <- y[within_x]
-
-  # Get cell indices for active (non-NA and/or non-zero) cells in x
-  x_df <- terra::as.data.frame(x, cells = TRUE, na.rm = TRUE)
-  if (length(unique(x_df[,2])) > 1) { # non-zero cells
-    x_df <- dplyr::select(dplyr::filter(x_df, x_df[,2] > 0), cell)
-  } else { # non-NA only
-    x_df <- dplyr::select(x_df, cell)
+  # Resolve x as a mask or a template
+  if (nrow(terra::unique(x)) > 1) { # mask
+    x <- x > 0
+  } else { # template
+    x <- x*0 + 1
   }
 
+  # Select variables and add index column to y
+  if (!is.null(vars) && all(vars %in% names(y))) {
+    y <- y[,vars]
+  }
+  y$index <- 1:nrow(y)
+
+  # Extract x cell and coverage for each feature in y
+  x_y_df <- exactextractr::exact_extract(
+    x, sf::st_as_sf(y[,"index"]),
+    fun = function(a) a,
+    include_cell = TRUE,
+    summarize_df = TRUE,
+    include_cols = "index",
+    progress = FALSE)
+
+  # Only include active (non-NA and/or non-zero) cells
+  x_y_df <- dplyr::select(dplyr::filter(x_y_df, x_y_df$value == 1),
+                          index, cell, coverage_fraction)
+
+  # Normalise coverage fraction
+  x_y_df <- dplyr::mutate(
+    dplyr::group_by(x_y_df, index),
+    coverage_fraction = coverage_fraction/sum(coverage_fraction))
+
   # Extract variable column data from y
-  y_df <- cbind(ID = 1:nrow(y), terra::as.data.frame(y[,vars]))
-
-  # Match the active cells in x with corresponding features in y
-  cell_id <- unique(as.data.frame(terra::cells(x, y)))
-  cell_id <- dplyr::inner_join(cell_id, x_df, by = c("cell" = "cell"))
-
-  # Count the number of active cells corresponding to each feature
-  cell_count <- dplyr::count(dplyr::group_by(cell_id, ID))
-  cell_id <- dplyr::left_join(cell_id, cell_count, by = c("ID" = "ID"))
+  y_df <- terra::as.data.frame(y)
 
   # Distribute feature values for each variable across active cells
   y_rast <- list()
   for (v in vars) {
 
-    # Select active cells with non-zero feature variable values
-    y_df_v <- dplyr::filter(y_df[,c("ID", v)], y_df[,v] > 0)
-    cell_id_v <- dplyr::inner_join(cell_id, y_df_v, by = c("ID" = "ID"))
+    # Select cells with non-zero feature variable values
+    y_df_v <- dplyr::filter(y_df[,c("index", v)], y_df[,v] > 0)
+    names(y_df_v)[2] <- "value"
+    x_y_df_v <- dplyr::inner_join(x_y_df, y_df_v, by = c("index" = "index"))
 
-    # Distribute total variable values across active cells
-    names(cell_id_v)[names(cell_id_v) == v] <- "value"
-    cell_id_v <- dplyr::mutate(cell_id_v, value = value/n)
+    # Distribute total variable values across cell coverage
+    x_y_df_v <- dplyr::select(
+      dplyr::mutate(x_y_df_v, value = value*coverage_fraction),
+      index, cell, value)
 
     # Sum the distributed values at each cell (note: duplicates are possible)
-    cell_id_v <- dplyr::summarise(dplyr::group_by(cell_id_v, cell),
-                                  value = sum(value))
+    x_y_df_v <- dplyr::summarise(dplyr::group_by(x_y_df_v, cell),
+                                 value = sum(value))
 
     # Place values in a spatial raster using x as a template
     y_rast[[v]] <- x*0
-    y_rast[[v]][cell_id_v$cell] <- cell_id_v$value
+    y_rast[[v]][x_y_df_v$cell] <- x_y_df_v$value
   }
 
   # Collect as a multilayered raster
