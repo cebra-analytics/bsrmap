@@ -74,7 +74,7 @@ distribute_features.SpatRaster <- function(x, y,
 
   # Resolve x as a mask or a template
   if (nrow(terra::unique(x)) > 1) { # mask
-    x <- x > 0
+    x <- +(x > 0)
   } else { # template
     x <- x*0 + 1
   }
@@ -125,7 +125,7 @@ distribute_features.SpatRaster <- function(x, y,
                                  value = sum(value))
 
     # Place values in a spatial raster using x as a template
-    y_rast[[v]] <- x*0
+    y_rast[[v]] <- as.numeric(x*0)
     y_rast[[v]][x_y_df_v$cell] <- x_y_df_v$value
   }
 

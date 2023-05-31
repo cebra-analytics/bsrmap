@@ -122,7 +122,7 @@ conform_layer.SpatRaster <- function(x, y,
   # Binarize when required
   if (binarize) {
     message("Binarizing raster ...")
-    x <- x > 0
+    x <- as.numeric(x > 0)
   }
 
   # Write to file when required

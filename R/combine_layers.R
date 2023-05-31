@@ -82,7 +82,7 @@ combine_layers.SpatRaster <- function(x,
   # Binarize when required
   if (binarize) {
     message("Binarizing raster ...")
-    x_combined <- x_combined > 0
+    x_combined <- as.numeric(x_combined > 0)
   }
 
   # Write to file when required

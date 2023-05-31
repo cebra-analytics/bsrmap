@@ -40,7 +40,7 @@ test_that("combines layers with binarize and NA removal", {
   stack_rast <- terra::rast(list(popn_rast, veg_rast))
   expect_silent(comb_rast <- suppressMessages(
     combine_layers(stack_rast, use_fun = "prod", binarize = TRUE)))
-  expect_equal(comb_rast[][,1], +(popn_rast[][,1]*veg_rast[][,1] > 0))
+  expect_equal(comb_rast[][,1], as.numeric(popn_rast[][,1]*veg_rast[][,1] > 0))
   stack_rast[[1]][] <- NA
   expect_silent(comb_rast <- suppressMessages(
     combine_layers(stack_rast, use_fun = "sum", na.rm = TRUE)))

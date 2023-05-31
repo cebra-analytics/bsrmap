@@ -23,7 +23,8 @@ test_that("builds alpha or convex hull layer via set of points", {
                         buffer = 10000)))
   example_pts[6,] <- c(144.5, -38.1) # add point in sea
   expect_silent(new_layer4 <- suppressMessages(
-    buffered_hull_layer(template_rast, example_pts, alpha = 100000)))
+    buffered_hull_layer(template_rast, example_pts, alpha = 100000,
+                        buffer = 1000)))
   idx_1 <- which(new_layer1[][,1] > 0)
   idx_2 <- which(new_layer2[][,1] > 0)
   idx_3 <- which(new_layer3[][,1] > 0)
