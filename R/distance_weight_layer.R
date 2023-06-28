@@ -30,6 +30,9 @@
 #'   becomes: the sum of \code{exp(distance/(1000/beta))*weight} for each cell.
 #'   Default is none (\code{NULL}), in which case the distance to the nearest
 #'   point (feature) is used in the exponential function.
+#' @param max_distance Optional maximum distance (m) used to calculate the
+#'   distance weight layer. Default is \code{NULL}, which considers all
+#'   distances.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing distance-weighted cell
@@ -44,6 +47,7 @@
 distance_weight_layer <- function(x, y,
                                   beta = log(0.5)/200,
                                   weights = NULL,
+                                  max_distance = NULL,
                                   filename = "", ...) {
   UseMethod("distance_weight_layer")
 }
@@ -53,11 +57,13 @@ distance_weight_layer <- function(x, y,
 distance_weight_layer.Raster <- function(x, y,
                                          beta = log(0.5)/200,
                                          weights = NULL,
+                                         max_distance = NULL,
                                          filename = "", ...) {
   # Call the terra version of the function
   distance_weight_layer(terra::rast(x), y,
                         beta = beta,
                         weights = weights,
+                        max_distance = max_distance,
                         filename = filename, ...)
 }
 
@@ -66,6 +72,7 @@ distance_weight_layer.Raster <- function(x, y,
 distance_weight_layer.SpatRaster <- function(x, y,
                                              beta = log(0.5)/200,
                                              weights = NULL,
+                                             max_distance = NULL,
                                              filename = "", ...) {
   if (!missing(y)) {
 
@@ -99,6 +106,12 @@ distance_weight_layer.SpatRaster <- function(x, y,
     y <- terra::project(terra::vect(y, crs = "EPSG:4326"), x)
   }
 
+  # Check maximum distance
+  if (!is.null(max_distance) &&
+      (!is.numeric(max_distance) || max_distance <= 0)) {
+    stop("Maximum distance should be numeric and > 0.", call. = FALSE)
+  }
+
   # Are weights present?
   if (missing(y) || is.null(weights)) {
 
@@ -111,11 +124,18 @@ distance_weight_layer.SpatRaster <- function(x, y,
       d_rast <- x
     }
 
+    # Maximum distance mask
+    max_dist_mask <- 1
+    if (is.numeric(max_distance)) {
+      max_dist_mask <- d_rast <= max_distance
+    }
+
     # Calculate distance weights (write to file when required)
     if (is.character(filename) && nchar(filename) > 0) {
-      weight_rast <- terra::writeRaster(exp(d_rast/(1000/beta)), filename, ...)
+      weight_rast <- terra::writeRaster(exp(d_rast*beta/1000)*max_dist_mask,
+                                        filename, ...)
     } else {
-      weight_rast <- exp(d_rast/(1000/beta))
+      weight_rast <- exp(d_rast*beta/1000)*max_dist_mask
     }
 
   } else {
@@ -125,7 +145,12 @@ distance_weight_layer.SpatRaster <- function(x, y,
     w <- terra::values(weight_rast)
     for (i in 1:nrow(y)) {
       d <- terra::values(terra::distance(x, y[i, ]))
-      w <- w + exp(d/(1000/beta))*weights[i]
+      w <- w + exp(d*beta/1000)*weights[i]
+    }
+
+    # Apply maximum distance
+    if (is.numeric(max_distance)) {
+      w <- w*(terra::values(terra::distance(x, y)) <= max_distance)
     }
 
     # Write to file when required

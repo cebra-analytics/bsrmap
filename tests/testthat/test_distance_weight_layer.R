@@ -21,6 +21,13 @@ test_that("calculates distance weight layer", {
   expect_equal(dist_w_rast[][,1], expect_rast[][,1])
   expect_silent(dist_w_rast <- distance_weight_layer(dist_rast, beta = -0.03))
   expect_equal(dist_w_rast[][,1], expect_rast[][,1])
+  expect_rast <- exp(dist_rast/(1000/-0.03))*(dist_rast <= 50000)
+  dist_w_rast <- distance_weight_layer(template_rast, example_pts,
+                                       beta = -0.03, max_distance = 50000)
+  expect_equal(dist_w_rast[][,1], expect_rast[][,1])
+  expect_silent(dist_w_rast <- distance_weight_layer(dist_rast, beta = -0.03,
+                                                     max_distance = 50000))
+  expect_equal(dist_w_rast[][,1], expect_rast[][,1])
 })
 
 test_that("calculates distance weight layer with weights", {
@@ -46,5 +53,31 @@ test_that("calculates distance weight layer with weights", {
   expect_rast <- dist_rast_1 + dist_rast_2
   dist_w_rast <- distance_weight_layer(template_rast, example_pts,
                                        beta = -0.03, weights = "weights")
+  expect_equal(dist_w_rast[][,1], expect_rast[][,1])
+  dist_rast <- terra::distance(template_rast, example_vect)*(template_rast + 1)
+  expect_rast <- expect_rast*(dist_rast <= 50000)
+  dist_w_rast <- distance_weight_layer(template_rast, example_pts,
+                                       beta = -0.03, weights = "weights",
+                                       max_distance = 50000)
+  expect_equal(dist_w_rast[][,1], expect_rast[][,1])
+})
+
+test_that("calculates distance weight layer with maximum distance only", {
+  TEST_DIRECTORY <- test_path("test_inputs")
+  template_rast <- terra::rast(file.path(TEST_DIRECTORY, "greater_melb.tif"))*0
+  example_pts <- data.frame(lon = c(144.3, 144.3, 144.4, 144.5, 144.5),
+                            lat = c(-38.0, -37.6, -37.8, -37.9, -37.8))
+  dist_rast <- (terra::distance(template_rast, terra::project(
+    terra::vect(example_pts, crs = "EPSG:4326"), "EPSG:3577"))*
+      (template_rast + 1))
+  expect_error(distance_weight_layer(template_rast, example_pts, beta = 0,
+                                     max_distance = 0),
+               "Maximum distance should be numeric and > 0")
+  expect_rast <- +(dist_rast <= 50000)
+  dist_w_rast <- distance_weight_layer(template_rast, example_pts, beta = 0,
+                                       max_distance = 50000)
+  expect_equal(dist_w_rast[][,1], expect_rast[][,1])
+  expect_silent(dist_w_rast <- distance_weight_layer(dist_rast, beta = 0,
+                                                     max_distance = 50000))
   expect_equal(dist_w_rast[][,1], expect_rast[][,1])
 })

@@ -11,6 +11,7 @@ distance_weight_layer(
   y,
   beta = log(0.5)/200,
   weights = NULL,
+  max_distance = NULL,
   filename = "",
   ...
 )
@@ -20,6 +21,7 @@ distance_weight_layer(
   y,
   beta = log(0.5)/200,
   weights = NULL,
+  max_distance = NULL,
   filename = "",
   ...
 )
@@ -29,6 +31,7 @@ distance_weight_layer(
   y,
   beta = log(0.5)/200,
   weights = NULL,
+  max_distance = NULL,
   filename = "",
   ...
 )
@@ -59,6 +62,10 @@ calculated via weighted sums. Thus the exponential function (above)
 becomes: the sum of \code{exp(distance/(1000/beta))*weight} for each cell.
 Default is none (\code{NULL}), in which case the distance to the nearest
 point (feature) is used in the exponential function.}
+
+\item{max_distance}{Optional maximum distance (m) used to calculate the
+distance weight layer. Default is \code{NULL}, which considers all
+distances.}
 
 \item{filename}{Optional file writing path (character).}
 
