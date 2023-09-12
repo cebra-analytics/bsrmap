@@ -18,7 +18,7 @@ arrival_likelihood(
 to combine (union) to form a pest arrival likelihood layer.}
 
 \item{use_fun}{One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
-union function is intended for probabilities (via \code{1 - sum(1 - x)}).
+union function is intended for probabilities (via \code{1 - prod(1 - x)}).
 Default = \code{"union"}.}
 
 \item{na.rm}{Logical indicating whether or not to ignore \code{"NA"} values

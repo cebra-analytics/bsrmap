@@ -10,7 +10,7 @@
 #'   \code{terra::SpatRaster} object representing the pest arrival likelihood
 #'   spatial layer (a combination of one or more pathway layers).
 #' @param use_fun One of \code{"prod"}, \code{"sum"}, or \code{"union"}. The
-#'   union function is intended for probabilities (via \code{1 - sum(1 - x)}).
+#'   union function is intended for probabilities (via \code{1 - prod(1 - x)}).
 #'   Default = \code{"prod"}.
 #' @param na.rm Logical indicating whether or not to ignore \code{"NA"} values
 #'   when applying the combination function (\code{"use_fun"}). Default =
