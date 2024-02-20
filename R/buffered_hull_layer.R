@@ -14,12 +14,15 @@
 #'   points \code{y}. The value should be in the same units as the coordinates
 #'   (or CRS) of the template layer \code{x}. For example, use degrees if the
 #'   coordinates are in WGS84 longitudes and latitudes, otherwise coordinates
-#'   are typically in meters.
+#'   are typically in metres.
 #' @param buffer Numeric buffer distance to place around selected hull, or
 #'   around points \code{y} when no hull \code{"none"} is selected. The value
-#'   should be in meters when template layer \code{x} coordinates (or CRS) are
+#'   should be in metres when template layer \code{x} coordinates (or CRS) are
 #'   in WGS84 longitudes and latitudes, otherwise use the same units as the
-#'   coordinates (typically also in meters).
+#'   coordinates (typically also in metres).
+#' @param crop Logical indicator of whether or not the point data \code{y}
+#'   should be cropped using the geographic extent of the template layer
+#'   \code{x}. Default is \code{TRUE}.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing the calculated buffered
@@ -35,6 +38,7 @@ buffered_hull_layer <- function(x, y,
                                 hull = c("alpha", "convex", "none"),
                                 alpha = NULL,
                                 buffer = NULL,
+                                crop = TRUE,
                                 filename = "", ...) {
   UseMethod("buffered_hull_layer")
 }
@@ -45,12 +49,14 @@ buffered_hull_layer.Raster <- function(x, y,
                                        hull = c("alpha", "convex", "none"),
                                        alpha = NULL,
                                        buffer = NULL,
+                                       crop = TRUE,
                                        filename = "", ...) {
   # Call the terra version of the function
   buffered_hull_layer(terra::rast(x), y,
                       hull = hull,
                       alpha = alpha,
                       buffer = buffer,
+                      crop = crop,
                       filename = filename, ...)
 }
 
@@ -60,6 +66,7 @@ buffered_hull_layer.SpatRaster <- function(x, y,
                                            hull = c("alpha", "convex", "none"),
                                            alpha = NULL,
                                            buffer = NULL,
+                                           crop = TRUE,
                                            filename = "", ...) {
   if (!missing(y)) {
 
@@ -75,7 +82,15 @@ buffered_hull_layer.SpatRaster <- function(x, y,
     }
 
     # Conform y coordinates CRS with x
-    y <- terra::crds(terra::project(terra::vect(y, crs = "EPSG:4326"), x))
+    y_vect <- terra::project(terra::vect(y, crs = "EPSG:4326"), x)
+
+    # Crop y using the extent of x
+    if (crop) {
+      y_vect <- terra::crop(y_vect, x)
+    }
+
+    # Coordinates
+    y <- terra::crds(y_vect)
   }
 
   # Unique y to avoid duplicates error in ahull

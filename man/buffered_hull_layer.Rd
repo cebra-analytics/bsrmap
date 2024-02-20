@@ -12,6 +12,7 @@ buffered_hull_layer(
   hull = c("alpha", "convex", "none"),
   alpha = NULL,
   buffer = NULL,
+  crop = TRUE,
   filename = "",
   ...
 )
@@ -22,6 +23,7 @@ buffered_hull_layer(
   hull = c("alpha", "convex", "none"),
   alpha = NULL,
   buffer = NULL,
+  crop = TRUE,
   filename = "",
   ...
 )
@@ -32,6 +34,7 @@ buffered_hull_layer(
   hull = c("alpha", "convex", "none"),
   alpha = NULL,
   buffer = NULL,
+  crop = TRUE,
   filename = "",
   ...
 )
@@ -51,13 +54,17 @@ the type of hull to fit to the points \code{y}.}
 points \code{y}. The value should be in the same units as the coordinates
 (or CRS) of the template layer \code{x}. For example, use degrees if the
 coordinates are in WGS84 longitudes and latitudes, otherwise coordinates
-are typically in meters.}
+are typically in metres.}
 
 \item{buffer}{Numeric buffer distance to place around selected hull, or
 around points \code{y} when no hull \code{"none"} is selected. The value
-should be in meters when template layer \code{x} coordinates (or CRS) are
+should be in metres when template layer \code{x} coordinates (or CRS) are
 in WGS84 longitudes and latitudes, otherwise use the same units as the
-coordinates (typically also in meters).}
+coordinates (typically also in metres).}
+
+\item{crop}{Logical indicator of whether or not the point data \code{y}
+should be cropped using the geographic extent of the template layer
+\code{x}. Default is \code{TRUE}.}
 
 \item{filename}{Optional file writing path (character).}
 
