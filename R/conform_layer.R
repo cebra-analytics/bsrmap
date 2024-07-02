@@ -109,7 +109,7 @@ conform_layer.SpatRaster <- function(x, y,
     terra::setMinMax(x)
     x <- ((x - terra::minmax(x)[1])/
             (terra::minmax(x)[2] - terra::minmax(x)[1]))
-    x[][which(x[][,1] > 1), 1] <- 1 # correct minmax rounding error
+    x[x > 1] <- 1 # correct minmax rounding error
   }
 
   # Conform to non-NA cells when present

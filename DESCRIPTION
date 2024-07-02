@@ -1,6 +1,6 @@
 Package: bsrmap
 Title: Biosecurity Risk Mapping
-Version: 0.1.7
+Version: 0.1.8
 Authors@R: c(
     person("James", "Camac", email = "james.camac@unimelb.edu.au", role = c("aut")),
     person("John", "Baumgartner", email = "john.baumgartner@unimelb.edu.au", role = c("aut")),
@@ -36,6 +36,7 @@ Collate:
     'buffered_hull_layer.R'
     'calc_pathway_viability_pr.R'
     'calc_viable_event_pr.R'
+    'cumulative_likelihood.R'
     'distance_weight_layer.R'
     'distribute_features.R'
     'establishment_likelihood.R'
