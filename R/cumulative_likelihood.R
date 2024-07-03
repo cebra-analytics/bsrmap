@@ -57,18 +57,24 @@ cumulative_likelihood.SpatRaster <- function(x,
   # Calculate ordered cumulative sum
   x_df <- terra::as.data.frame(x, cells = TRUE, na.rm = TRUE)
   names(x_df) <- c("cell", "val")
-  # x_df <- x_df[x_df$val > 0,]
   x_df <- x_df[order(x_df$val, decreasing = (order_by == "descending")),]
   x_df$val <- cumsum(x_df$val)
   x[x_df$cell] <- x_df$val
 
   # Convert to percentage decile-like groupings when required
   if (output == "percentage") {
-    x_p <- terra::classify(x, 10, include.lowest = TRUE) # TODO: not working for descending as 10 intervals from max(x) to cumsum(x) != cumsum(x)/10*(1:10)
-    levels(x_p) <- data.frame(ID = 0:9,
-                                cum_lhood = paste0((0:9)*10, "-",
-                                                   (1:10)*10, "%"))
+    intervals <- (0:10)*max(x_df$val)/10
+    x_p <- terra::classify(x, data.frame(from = intervals[1:10],
+                                         to = intervals[2:11], ID = 0:9),
+                           include.lowest = TRUE)
+    levels(x_p) <- data.frame(ID = 0:9, cum_lhood = paste0((0:9)*10, "-",
+                                                           (1:10)*10, "%"))
     x <- x_p
+  }
+
+  # Write to file when required
+  if (is.character(filename) && nchar(filename) > 0) {
+    x <- terra::writeRaster(x, filename, ...)
   }
 
   return(x)
