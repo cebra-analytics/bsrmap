@@ -26,6 +26,13 @@ test_that("conforms extent and resolution", {
     conform_layer(aclum_rast, suit_rast*0)))
   expect_true(terra::ext(new_layer) == terra::ext(suit_rast))
   expect_true(all(terra::res(new_layer) == terra::res(suit_rast)))
+  global_sdm <- terra::rast(file.path(TEST_DIRECTORY, "global_sdm.tif"))
+  new_layer <- expect_silent(suppressMessages(
+    conform_layer(global_sdm, suit_rast*0)))
+  expect_true(terra::ext(new_layer) == terra::ext(suit_rast))
+  expect_true(all(terra::res(new_layer) == terra::res(suit_rast)))
+  expect_true(all(which(is.finite(new_layer[])) %in%
+                    which(is.finite(suit_rast[]))))
 })
 
 test_that("normalizes and binarizes raster", {

@@ -65,21 +65,9 @@ aggregate_layer.SpatRaster <- function(x, y,
   }
 
   # Aggregation when resolution y is courser than x
-  if (platform) { # workaround code
-    x_proj_res <- terra::res(terra::project(
-      terra::crop(terra::rast(x),
-                  (terra::xyFromCell(x, terra::ncell(x) %/% 2)[1,] +
-                     c(0, 0, terra::res(x)))[c(1,3,2,4)]), terra::crs(y)))
-    x_proj_ext <- terra:: ext(terra::project(
-      terra::rast(crs = terra::crs(x), ext = terra::ext(x),
-                  res = terra::res(terra::project(terra::rast(y),
-                                                  terra::crs(x)))),
-      terra::crs(y)))
-    x_proj <- terra::rast(crs = terra::crs(y), res = x_proj_res,
-                          ext = x_proj_ext)
-  } else {
-    x_proj <- terra::project(terra::rast(x), terra::crs(y))
-  }
+  x_proj <- terra::project(terra::crop(
+    terra::rast(x), terra::project(terra::rast(y), terra::crs(x))),
+    terra::crs(y))
   aggregation_factor <- unique(round(terra::res(y)/terra::res(x_proj)))
   if (any(aggregation_factor > 1)) {
 
@@ -111,7 +99,7 @@ aggregate_layer.SpatRaster <- function(x, y,
       terra::ext(x) != terra::ext(y)) {
     if (!equivalent_crs(x, y)) {
       message("Projecting raster ...")
-      x <- terra::project(x, terra::crs(y), method = "near")
+      x <- terra::project(x, y, method = "near")
     }
     if (any(terra::res(x) != terra::res(y)) ||
         terra::ext(x) != terra::ext(y)) {
