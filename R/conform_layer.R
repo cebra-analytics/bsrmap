@@ -124,10 +124,13 @@ conform_layer.SpatRaster <- function(x, y,
     } else if (na_strategy == "nearest") {
       message("Conforming to non-NA values (new NAs to nearest) ...")
       idx <- which(is.na(x[]) & !is.na(y[]))
-      idx_vect <- terra::vect(terra::xyFromCell(x, idx), crs = terra::crs(x))
-      non_na_vect <- terra::as.points(x, values = TRUE, na.rm = TRUE)
-      nearest_idx <- as.data.frame(terra::nearest(idx_vect, non_na_vect))$to_id
-      x[idx] <- as.data.frame(non_na_vect)[nearest_idx,]
+      if (length(idx)) {
+        idx_vect <- terra::vect(terra::xyFromCell(x, idx), crs = terra::crs(x))
+        non_na_vect <- terra::as.points(x, values = TRUE, na.rm = TRUE)
+        nearest_idx <- as.data.frame(terra::nearest(idx_vect,
+                                                    non_na_vect))$to_id
+        x[idx] <- as.data.frame(non_na_vect)[nearest_idx,]
+      }
       x <- x*(y*0 + 1)
     } else { # retain NAs
       message("Conforming to non-NA values (new NAs retained) ...")
