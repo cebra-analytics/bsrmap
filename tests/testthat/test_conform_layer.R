@@ -28,11 +28,50 @@ test_that("conforms extent and resolution", {
   expect_true(all(terra::res(new_layer) == terra::res(suit_rast)))
   global_sdm <- terra::rast(file.path(TEST_DIRECTORY, "global_sdm.tif"))
   new_layer <- expect_silent(suppressMessages(
-    conform_layer(global_sdm, suit_rast*0)))
+    conform_layer(global_sdm, suit_rast*0, na_strategy = "retain")))
+  idx <- which(is.na(new_layer[]) & !is.na(suit_rast[]))
+  adj_idx <- terra::adjacent(new_layer, idx, array(c(0,1,rep(0,7)),c(3,3)))[,1]
+  adj_values <- new_layer[adj_idx][,1]
   expect_true(terra::ext(new_layer) == terra::ext(suit_rast))
   expect_true(all(terra::res(new_layer) == terra::res(suit_rast)))
   expect_true(all(which(is.finite(new_layer[])) %in%
                     which(is.finite(suit_rast[]))))
+  expect_false(all(which(is.finite(suit_rast[])) %in%
+                     which(is.finite(new_layer[]))))
+  expect_true(all(is.na(new_layer[idx][,1])))
+  new_layer <- expect_silent(suppressMessages(
+    conform_layer(global_sdm, suit_rast*0)))
+  expect_true(all(which(is.finite(new_layer[])) %in%
+                    which(is.finite(suit_rast[]))))
+  expect_true(all(which(is.finite(suit_rast[])) %in%
+                    which(is.finite(new_layer[]))))
+  expect_true(all(new_layer[idx][,1] == 0))
+  new_layer <- expect_silent(suppressMessages(
+    conform_layer(global_sdm, suit_rast*0, na_strategy = "nearest")))
+  expect_true(all(which(is.finite(new_layer[])) %in%
+                    which(is.finite(suit_rast[]))))
+  expect_true(all(which(is.finite(suit_rast[])) %in%
+                    which(is.finite(new_layer[]))))
+  expect_equal(new_layer[idx][,1], adj_values)
+})
+
+test_that("conforms to NA template", {
+  TEST_DIRECTORY <- test_path("test_inputs")
+  template_rast <- terra::rast(file.path(TEST_DIRECTORY,
+                                         "greater_melb.tif"))*0 + 1
+  cbd_pt <- terra::vect(terra::xyFromCell(template_rast, 5922),
+                        crs = terra::crs(template_rast))
+  buffer_rast <- terra::rasterize(terra::buffer(cbd_pt, 20000), template_rast)
+  new_layer <- suppressMessages(conform_layer(buffer_rast, template_rast))
+  expect_true(all(which(is.finite(new_layer[])) %in%
+                    which(is.finite(template_rast[]))))
+  expect_true(all(which(is.finite(template_rast[])) %in%
+                    which(is.finite(new_layer[]))))
+  expect_true(all(new_layer[which(is.finite(buffer_rast[]) &
+                                    is.finite(template_rast[]))][,1] == 1))
+  expect_true(all(new_layer[which(is.na(buffer_rast[]) &
+                                    is.finite(template_rast[]))][,1] == 0))
+  expect_true(all(is.na(new_layer[which(is.na(template_rast[]))][,1])))
 })
 
 test_that("normalizes and binarizes raster", {

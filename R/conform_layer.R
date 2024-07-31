@@ -11,8 +11,15 @@
 #'   normalized, i.e. set to a value 0-1 based on cell-wise minimum and
 #'   maximum values, i.e. \code{(value - min)/(max - min)}. Default =
 #'   \code{FALSE}.
-#' @param binarize Logical indicating if the combined cells should be
+#' @param binarize Logical indicating if the conformed layer should be
 #'   binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.
+#' @param na_strategy One of \code{"zero"}, \code{"nearest"}, or
+#'   \code{"retain"}, indicating the strategy for how to set locations where
+#'   \code{x} is \code{NA} but the conform template \code{y} has non-NA values.
+#'   By default they are set to \code{"zero"}. Alternatively, unwanted
+#'   \code{NA} values (e.g. due to mismatches in coastlines) may be set to the
+#'   \code{"nearest"} non-NA values, or when applicable, simply \code{"retain"}
+#'   \code{NA} values.
 #' @param platform Logical indicating function is to be run in a platform
 #'   environment requiring workaround code. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
@@ -31,6 +38,7 @@
 conform_layer <- function(x, y,
                           normalize = FALSE,
                           binarize = FALSE,
+                          na_strategy = c("zero", "nearest", "retain"),
                           platform = FALSE,
                           filename = "", ...) {
   UseMethod("conform_layer")
@@ -41,6 +49,7 @@ conform_layer <- function(x, y,
 conform_layer.Raster <- function(x, y,
                                  normalize = FALSE,
                                  binarize = FALSE,
+                                 na_strategy = c("zero", "nearest", "retain"),
                                  platform = FALSE,
                                  filename = "", ...) {
 
@@ -48,6 +57,7 @@ conform_layer.Raster <- function(x, y,
   conform_layer(terra::rast(x), y,
                 normalize = normalize,
                 binarize = binarize,
+                na_strategy = na_strategy,
                 platform = platform,
                 filename = filename, ...)
 }
@@ -57,12 +67,17 @@ conform_layer.Raster <- function(x, y,
 conform_layer.SpatRaster <- function(x, y,
                                      normalize = FALSE,
                                      binarize = FALSE,
+                                     na_strategy = c("zero", "nearest",
+                                                     "retain"),
                                      platform = FALSE,
                                      filename = "", ...) {
   # Convert y to terra
   if (class(y)[1] %in% c("Raster", "RasterStack", "RasterBrick")) {
     y <- terra::rast(y)
   }
+
+  # NA strategy?
+  na_strategy <- match.arg(na_strategy)
 
   # Make CRS equal when equivalent but not equal
   if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
@@ -102,8 +117,22 @@ conform_layer.SpatRaster <- function(x, y,
 
   # Conform to non-NA cells when present
   if (length(terra::unique(y))) {
-    message("Conforming to non-NA values ...")
-    x <- x*(y*0 + 1)
+    if (na_strategy == "zero") {
+      message("Conforming to non-NA values (new NAs to zero) ...")
+      x <- combine_layers(terra::rast(list(x, y*0)),
+                          use_fun = "sum", na.rm = TRUE) + y*0
+    } else if (na_strategy == "nearest") {
+      message("Conforming to non-NA values (new NAs to nearest) ...")
+      idx <- which(is.na(x[]) & !is.na(y[]))
+      idx_vect <- terra::vect(terra::xyFromCell(x, idx), crs = terra::crs(x))
+      non_na_vect <- terra::as.points(x, values = TRUE, na.rm = TRUE)
+      nearest_idx <- as.data.frame(terra::nearest(idx_vect, non_na_vect))$to_id
+      x[idx] <- as.data.frame(non_na_vect)[nearest_idx,]
+      x <- x*(y*0 + 1)
+    } else { # retain NAs
+      message("Conforming to non-NA values (new NAs retained) ...")
+      x <- x*(y*0 + 1)
+    }
   }
 
   # Binarize when required

@@ -11,6 +11,7 @@ conform_layer(
   y,
   normalize = FALSE,
   binarize = FALSE,
+  na_strategy = c("zero", "nearest", "retain"),
   platform = FALSE,
   filename = "",
   ...
@@ -21,6 +22,7 @@ conform_layer(
   y,
   normalize = FALSE,
   binarize = FALSE,
+  na_strategy = c("zero", "nearest", "retain"),
   platform = FALSE,
   filename = "",
   ...
@@ -31,6 +33,7 @@ conform_layer(
   y,
   normalize = FALSE,
   binarize = FALSE,
+  na_strategy = c("zero", "nearest", "retain"),
   platform = FALSE,
   filename = "",
   ...
@@ -48,8 +51,16 @@ normalized, i.e. set to a value 0-1 based on cell-wise minimum and
 maximum values, i.e. \code{(value - min)/(max - min)}. Default =
 \code{FALSE}.}
 
-\item{binarize}{Logical indicating if the combined cells should be
+\item{binarize}{Logical indicating if the conformed layer should be
 binarized, i.e. set to 1 for values > 0. Default = \code{FALSE}.}
+
+\item{na_strategy}{One of \code{"zero"}, \code{"nearest"}, or
+\code{"retain"}, indicating the strategy for how to set locations where
+\code{x} is \code{NA} but the conform template \code{y} has non-NA values.
+By default they are set to \code{"zero"}. Alternatively, unwanted
+\code{NA} values (e.g. due to mismatches in coastlines) may be set to the
+\code{"nearest"} non-NA values, or when applicable, simply \code{"retain"}
+\code{NA} values.}
 
 \item{platform}{Logical indicating function is to be run in a platform
 environment requiring workaround code. Default = \code{FALSE}.}
