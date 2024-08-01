@@ -67,10 +67,10 @@ combine_layers.SpatRaster <- function(x,
     message(sprintf("Calculating raster %s ...", use_fun))
     if (use_fun %in% c("prod", "sum")) {
       # Are weights present?
-      if (is.null(weights) || all(weights[1] == weights)) {
-        x_combined <- terra::app(x, fun = use_fun, na.rm = na.rm)
-      } else {
+      if (!is.null(weights)) {
         x_combined <- terra::app(x*weights, fun = use_fun, na.rm = na.rm)
+      } else {
+        x_combined <- terra::app(x, fun = use_fun, na.rm = na.rm)
       }
     } else if (use_fun == "union") {
       x_combined <- 1 - terra::app(1 - x, fun = "prod", na.rm = na.rm)
