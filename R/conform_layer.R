@@ -20,6 +20,10 @@
 #'   \code{NA} values (e.g. due to mismatches in coastlines) may be set to the
 #'   \code{"nearest"} non-NA values, or when applicable, simply \code{"retain"}
 #'   \code{NA} values.
+#' @param use_aggr_fun Use aggregation function when applicable. One of
+#'   \code{"mean"}, \code{"max"}, \code{"min"}, \code{"median"}, \code{"sum"},
+#'   \code{"modal"}, or \code{"union"}: \code{1 - prod(1 - x)}.
+#'   Default = \code{"mean"}.
 #' @param platform Logical indicating function is to be run in a platform
 #'   environment requiring workaround code. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
@@ -39,6 +43,8 @@ conform_layer <- function(x, y,
                           normalize = FALSE,
                           binarize = FALSE,
                           na_strategy = c("zero", "nearest", "retain"),
+                          use_aggr_fun = c("mean", "max", "min", "median",
+                                           "sum", "modal", "union"),
                           platform = FALSE,
                           filename = "", ...) {
   UseMethod("conform_layer")
@@ -50,6 +56,9 @@ conform_layer.Raster <- function(x, y,
                                  normalize = FALSE,
                                  binarize = FALSE,
                                  na_strategy = c("zero", "nearest", "retain"),
+                                 use_aggr_fun = c("mean", "max", "min",
+                                                  "median", "sum", "modal",
+                                                  "union"),
                                  platform = FALSE,
                                  filename = "", ...) {
 
@@ -69,6 +78,9 @@ conform_layer.SpatRaster <- function(x, y,
                                      binarize = FALSE,
                                      na_strategy = c("zero", "nearest",
                                                      "retain"),
+                                     use_aggr_fun = c("mean", "max", "min",
+                                                      "median", "sum", "modal",
+                                                      "union"),
                                      platform = FALSE,
                                      filename = "", ...) {
   # Convert y to terra
@@ -78,6 +90,9 @@ conform_layer.SpatRaster <- function(x, y,
 
   # NA strategy?
   na_strategy <- match.arg(na_strategy)
+
+  # Use aggregation function (when applicable)?
+  use_aggr_fun <- match.arg(use_aggr_fun)
 
   # Make CRS equal when equivalent but not equal
   if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
@@ -90,7 +105,7 @@ conform_layer.SpatRaster <- function(x, y,
     terra::crs(y))
   aggregation_factor <- unique(round(terra::res(y)/terra::res(x_proj)))
   if (any(aggregation_factor > 1)) { # resolution y is courser than x
-    x <- aggregate_layer(x, y, use_fun = "mean",
+    x <- aggregate_layer(x, y, use_fun = use_aggr_fun,
                          platform = platform) # includes re-sampling
   } else if (any(terra::res(x) != terra::res(y)) ||
              !equivalent_crs(x, y) ||

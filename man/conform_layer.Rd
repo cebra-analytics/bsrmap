@@ -12,6 +12,7 @@ conform_layer(
   normalize = FALSE,
   binarize = FALSE,
   na_strategy = c("zero", "nearest", "retain"),
+  use_aggr_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
   platform = FALSE,
   filename = "",
   ...
@@ -23,6 +24,7 @@ conform_layer(
   normalize = FALSE,
   binarize = FALSE,
   na_strategy = c("zero", "nearest", "retain"),
+  use_aggr_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
   platform = FALSE,
   filename = "",
   ...
@@ -34,6 +36,7 @@ conform_layer(
   normalize = FALSE,
   binarize = FALSE,
   na_strategy = c("zero", "nearest", "retain"),
+  use_aggr_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
   platform = FALSE,
   filename = "",
   ...
@@ -61,6 +64,11 @@ By default they are set to \code{"zero"}. Alternatively, unwanted
 \code{NA} values (e.g. due to mismatches in coastlines) may be set to the
 \code{"nearest"} non-NA values, or when applicable, simply \code{"retain"}
 \code{NA} values.}
+
+\item{use_aggr_fun}{Use aggregation function when applicable. One of
+\code{"mean"}, \code{"max"}, \code{"min"}, \code{"median"}, \code{"sum"},
+\code{"modal"}, or \code{"union"}: \code{1 - prod(1 - x)}.
+Default = \code{"mean"}.}
 
 \item{platform}{Logical indicating function is to be run in a platform
 environment requiring workaround code. Default = \code{FALSE}.}

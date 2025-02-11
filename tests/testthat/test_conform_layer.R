@@ -87,3 +87,15 @@ test_that("normalizes and binarizes raster", {
   expect_true(all(which(new_layer[][,1] == 0) == which(suit_rast[][,1] == 0)))
   expect_true(all(which(new_layer[][,1] == 1) == which(suit_rast[][,1] > 0)))
 })
+
+test_that("conforms aggregate via union: 1 - prod(1 - x)", {
+  TEST_DIRECTORY <- test_path("test_inputs")
+  region_aggr <- terra::rast(file.path(TEST_DIRECTORY, "region_aggr.tif"))
+  occur_pr <- terra::rast(file.path(TEST_DIRECTORY, "occur_pr.tif"))
+  expect_silent(new_layer <- suppressMessages(
+    conform_layer(occur_pr, region_aggr, use_aggr_fun = "union")))
+  region_1km <- terra::disagg(region_aggr, 10)
+  occur_pr_cut <- terra::crop(occur_pr, region_1km)*region_1km
+  expect_equal(round(1 - prod(1 - occur_pr_cut[][,1], na.rm = T), 4),
+               round(1 - prod(1 - new_layer[][,1], na.rm = T), 4))
+})

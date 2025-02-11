@@ -11,7 +11,8 @@
 #'   object representing the spatial layer with the spatial resolution (and
 #'   configuration) to aggregate (conform) to.
 #' @param use_fun One of \code{"mean"}, \code{"max"}, \code{"min"},
-#'   \code{"median"}, \code{"sum"}, or \code{"modal"}.
+#'   \code{"median"}, \code{"sum"}, \code{"modal"}, or \code{"union"}:
+#'   \code{1 - prod(1 - x)}.
 #' @param platform Logical indicating function is to be run in a platform
 #'   environment requiring workaround code. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
@@ -26,8 +27,8 @@
 #' @include equivalent_crs.R
 #' @export
 aggregate_layer <- function(x, y,
-                            use_fun = c("mean", "max", "min",
-                                        "median", "sum", "modal"),
+                            use_fun = c("mean", "max", "min", "median",
+                                        "sum", "modal", "union"),
                             platform = FALSE,
                             filename = "", ...) {
   UseMethod("aggregate_layer")
@@ -36,8 +37,8 @@ aggregate_layer <- function(x, y,
 #' @name aggregate_layer
 #' @export
 aggregate_layer.Raster <- function(x, y,
-                                   use_fun = c("mean", "max", "min",
-                                               "median", "sum", "modal"),
+                                   use_fun = c("mean", "max", "min", "median",
+                                               "sum", "modal", "union"),
                                    platform = FALSE,
                                    filename = "", ...) {
   # Call the terra version of the function
@@ -51,7 +52,8 @@ aggregate_layer.Raster <- function(x, y,
 #' @export
 aggregate_layer.SpatRaster <- function(x, y,
                                        use_fun = c("mean", "max", "min",
-                                                   "median", "sum", "modal"),
+                                                   "median", "sum", "modal",
+                                                   "union"),
                                        platform = FALSE,
                                        filename = "", ...) {
   # Convert y to terra
@@ -87,6 +89,11 @@ aggregate_layer.SpatRaster <- function(x, y,
 
     # Aggregate
     use_fun <- match.arg(use_fun)
+    if (use_fun == "union") {
+      use_fun <- function(x_vect, na.rm = TRUE) {
+        1 - prod(1 - x_vect, na.rm = na.rm)
+      }
+    }
     message("Aggregating raster ...")
     x <- terra::aggregate(x,
                           fact = aggregation_factor,

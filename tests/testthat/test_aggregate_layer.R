@@ -21,3 +21,13 @@ test_that("aggregates and re-samples layer to match template", {
     }), c(5, 5))
   expect_true(all(aggr_rast[][,1] == t(expected_values)))
 })
+
+test_that("aggregates via union: 1 - prod(1 - x)", {
+  TEST_DIRECTORY <- test_path("test_inputs")
+  region_aggr <- terra::rast(file.path(TEST_DIRECTORY, "region_aggr.tif"))
+  occur_pr <- terra::rast(file.path(TEST_DIRECTORY, "occur_pr.tif"))
+  expect_silent(aggr_rast <- suppressMessages(
+    aggregate_layer(occur_pr, region_aggr, use_fun = "union")))
+  expect_equal(round(1 - prod(1 - occur_pr[][,1], na.rm = T), 3),
+               round(1 - prod(1 - aggr_rast[][,1], na.rm = T), 3))
+})

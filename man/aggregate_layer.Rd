@@ -9,7 +9,7 @@
 aggregate_layer(
   x,
   y,
-  use_fun = c("mean", "max", "min", "median", "sum", "modal"),
+  use_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
   platform = FALSE,
   filename = "",
   ...
@@ -18,7 +18,7 @@ aggregate_layer(
 \method{aggregate_layer}{Raster}(
   x,
   y,
-  use_fun = c("mean", "max", "min", "median", "sum", "modal"),
+  use_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
   platform = FALSE,
   filename = "",
   ...
@@ -27,7 +27,7 @@ aggregate_layer(
 \method{aggregate_layer}{SpatRaster}(
   x,
   y,
-  use_fun = c("mean", "max", "min", "median", "sum", "modal"),
+  use_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
   platform = FALSE,
   filename = "",
   ...
@@ -42,7 +42,8 @@ object representing the spatial layer with the spatial resolution (and
 configuration) to aggregate (conform) to.}
 
 \item{use_fun}{One of \code{"mean"}, \code{"max"}, \code{"min"},
-\code{"median"}, \code{"sum"}, or \code{"modal"}.}
+\code{"median"}, \code{"sum"}, \code{"modal"}, or \code{"union"}:
+\code{1 - prod(1 - x)}.}
 
 \item{platform}{Logical indicating function is to be run in a platform
 environment requiring workaround code. Default = \code{FALSE}.}
