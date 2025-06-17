@@ -13,6 +13,7 @@ conform_layer(
   binarize = FALSE,
   na_strategy = c("zero", "nearest", "retain"),
   use_aggr_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
+  use_method = c("auto", "bilinear", "near"),
   platform = FALSE,
   filename = "",
   ...
@@ -25,6 +26,7 @@ conform_layer(
   binarize = FALSE,
   na_strategy = c("zero", "nearest", "retain"),
   use_aggr_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
+  use_method = c("auto", "bilinear", "near"),
   platform = FALSE,
   filename = "",
   ...
@@ -37,6 +39,7 @@ conform_layer(
   binarize = FALSE,
   na_strategy = c("zero", "nearest", "retain"),
   use_aggr_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
+  use_method = c("auto", "bilinear", "near"),
   platform = FALSE,
   filename = "",
   ...
@@ -69,6 +72,10 @@ By default they are set to \code{"zero"}. Alternatively, unwanted
 \code{"mean"}, \code{"max"}, \code{"min"}, \code{"median"}, \code{"sum"},
 \code{"modal"}, or \code{"union"}: \code{1 - prod(1 - x)}.
 Default = \code{"mean"}.}
+
+\item{use_method}{Use method when projecting and/or re-sampling. One of
+\code{"auto"} (uses "near" for categorical rasters else "bilinear"),
+\code{"bilinear"}, or \code{"near"}. Default = \code{"auto"}.}
 
 \item{platform}{Logical indicating function is to be run in a platform
 environment requiring workaround code. Default = \code{FALSE}.}

@@ -6,10 +6,10 @@ test_that("conforms CRS", {
   lonlat_rast <- terra::rast(file.path(TEST_DIRECTORY,
                                        "greater_melb_wgs84.tif"))
   expect_silent(new_layer <- suppressMessages(
-    conform_layer(lonlat_rast, albers_rast*0)))
+    conform_layer(lonlat_rast, albers_rast*0, use_method = "near")))
   expect_true(terra::crs(new_layer) == terra::crs(albers_rast))
   expect_silent(new_layer <- suppressMessages(
-    conform_layer(albers_rast, lonlat_rast*0)))
+    conform_layer(albers_rast, lonlat_rast*0, use_method = "near")))
   expect_true(terra::crs(new_layer) == terra::crs(lonlat_rast))
   expect_equal(round(new_layer[][,1], 3), round(lonlat_rast[][,1], 3))
 })

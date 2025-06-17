@@ -10,6 +10,7 @@ aggregate_layer(
   x,
   y,
   use_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
+  use_method = c("auto", "bilinear", "near"),
   platform = FALSE,
   filename = "",
   ...
@@ -19,6 +20,7 @@ aggregate_layer(
   x,
   y,
   use_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
+  use_method = c("auto", "bilinear", "near"),
   platform = FALSE,
   filename = "",
   ...
@@ -28,6 +30,7 @@ aggregate_layer(
   x,
   y,
   use_fun = c("mean", "max", "min", "median", "sum", "modal", "union"),
+  use_method = c("auto", "bilinear", "near"),
   platform = FALSE,
   filename = "",
   ...
@@ -44,6 +47,10 @@ configuration) to aggregate (conform) to.}
 \item{use_fun}{One of \code{"mean"}, \code{"max"}, \code{"min"},
 \code{"median"}, \code{"sum"}, \code{"modal"}, or \code{"union"}:
 \code{1 - prod(1 - x)}.}
+
+\item{use_method}{Use method when projecting and/or re-sampling. One of
+\code{"auto"} (uses "near" for categorical rasters else "bilinear"),
+\code{"bilinear"}, or \code{"near"}. Default = \code{"auto"}.}
 
 \item{platform}{Logical indicating function is to be run in a platform
 environment requiring workaround code. Default = \code{FALSE}.}

@@ -24,6 +24,9 @@
 #'   \code{"mean"}, \code{"max"}, \code{"min"}, \code{"median"}, \code{"sum"},
 #'   \code{"modal"}, or \code{"union"}: \code{1 - prod(1 - x)}.
 #'   Default = \code{"mean"}.
+#' @param use_method Use method when projecting and/or re-sampling. One of
+#'   \code{"auto"} (uses "near" for categorical rasters else "bilinear"),
+#'   \code{"bilinear"}, or \code{"near"}. Default = \code{"auto"}.
 #' @param platform Logical indicating function is to be run in a platform
 #'   environment requiring workaround code. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
@@ -45,6 +48,7 @@ conform_layer <- function(x, y,
                           na_strategy = c("zero", "nearest", "retain"),
                           use_aggr_fun = c("mean", "max", "min", "median",
                                            "sum", "modal", "union"),
+                          use_method = c("auto", "bilinear", "near"),
                           platform = FALSE,
                           filename = "", ...) {
   UseMethod("conform_layer")
@@ -59,6 +63,7 @@ conform_layer.Raster <- function(x, y,
                                  use_aggr_fun = c("mean", "max", "min",
                                                   "median", "sum", "modal",
                                                   "union"),
+                                 use_method = c("auto", "bilinear", "near"),
                                  platform = FALSE,
                                  filename = "", ...) {
 
@@ -67,6 +72,8 @@ conform_layer.Raster <- function(x, y,
                 normalize = normalize,
                 binarize = binarize,
                 na_strategy = na_strategy,
+                use_aggr_fun = use_aggr_fun,
+                use_method = use_method,
                 platform = platform,
                 filename = filename, ...)
 }
@@ -81,6 +88,8 @@ conform_layer.SpatRaster <- function(x, y,
                                      use_aggr_fun = c("mean", "max", "min",
                                                       "median", "sum", "modal",
                                                       "union"),
+                                     use_method = c("auto", "bilinear",
+                                                    "near"),
                                      platform = FALSE,
                                      filename = "", ...) {
   # Convert y to terra
@@ -94,6 +103,9 @@ conform_layer.SpatRaster <- function(x, y,
   # Use aggregation function (when applicable)?
   use_aggr_fun <- match.arg(use_aggr_fun)
 
+  # Project/re-sample method
+  use_method <- match.arg(use_method)
+
   # Make CRS equal when equivalent but not equal
   if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
     terra::crs(x) <- terra::crs(y)
@@ -106,18 +118,27 @@ conform_layer.SpatRaster <- function(x, y,
   aggregation_factor <- unique(round(terra::res(y)/terra::res(x_proj)))
   if (any(aggregation_factor > 1)) { # resolution y is courser than x
     x <- aggregate_layer(x, y, use_fun = use_aggr_fun,
+                         use_method = use_method,
                          platform = platform) # includes re-sampling
   } else if (any(terra::res(x) != terra::res(y)) ||
              !equivalent_crs(x, y) ||
              terra::ext(x) != terra::ext(y)) {
     if (!equivalent_crs(x, y)) {
       message("Projecting raster ...")
-      x <- terra::project(x, y, method = "near")
+      if (use_method == "auto") {
+        x <- terra::project(x, y)
+      } else {
+        x <- terra::project(x, y, method = use_method)
+      }
     }
     if (any(terra::res(x) != terra::res(y)) ||
         terra::ext(x) != terra::ext(y)) {
       message("Resampling raster ...")
-      x <- terra::resample(x, y, method = "near")
+      if (use_method == "auto") {
+        x <- terra::resample(x, y)
+      } else {
+        x <- terra::resample(x, y, method = use_method)
+      }
     }
   }
 

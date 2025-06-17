@@ -13,6 +13,9 @@
 #' @param use_fun One of \code{"mean"}, \code{"max"}, \code{"min"},
 #'   \code{"median"}, \code{"sum"}, \code{"modal"}, or \code{"union"}:
 #'   \code{1 - prod(1 - x)}.
+#' @param use_method Use method when projecting and/or re-sampling. One of
+#'   \code{"auto"} (uses "near" for categorical rasters else "bilinear"),
+#'   \code{"bilinear"}, or \code{"near"}. Default = \code{"auto"}.
 #' @param platform Logical indicating function is to be run in a platform
 #'   environment requiring workaround code. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
@@ -29,6 +32,7 @@
 aggregate_layer <- function(x, y,
                             use_fun = c("mean", "max", "min", "median",
                                         "sum", "modal", "union"),
+                            use_method = c("auto", "bilinear", "near"),
                             platform = FALSE,
                             filename = "", ...) {
   UseMethod("aggregate_layer")
@@ -39,11 +43,13 @@ aggregate_layer <- function(x, y,
 aggregate_layer.Raster <- function(x, y,
                                    use_fun = c("mean", "max", "min", "median",
                                                "sum", "modal", "union"),
+                                   use_method = c("auto", "bilinear", "near"),
                                    platform = FALSE,
                                    filename = "", ...) {
   # Call the terra version of the function
   aggregate_layer(terra::rast(x), y,
                   use_fun = use_fun,
+                  use_method = use_method,
                   platform = platform,
                   filename = filename, ...)
 }
@@ -54,6 +60,7 @@ aggregate_layer.SpatRaster <- function(x, y,
                                        use_fun = c("mean", "max", "min",
                                                    "median", "sum", "modal",
                                                    "union"),
+                                       use_method = c("auto", "bilinear", "near"),
                                        platform = FALSE,
                                        filename = "", ...) {
   # Convert y to terra
@@ -84,7 +91,11 @@ aggregate_layer.SpatRaster <- function(x, y,
                                 extent = project_ext,
                                 resolution = terra::res(x_proj))
       message("Projecting raster ...")
-      x <- terra::project(x, y_template, method = "near")
+      if (use_method == "auto") {
+        x <- terra::project(x, y_template)
+      } else {
+        x <- terra::project(x, y_template, method = use_method)
+      }
     }
 
     # Aggregate
@@ -102,16 +113,25 @@ aggregate_layer.SpatRaster <- function(x, y,
   }
 
   # Re-sample when the resolution, CRS or extent are not equal
+  use_method <- match.arg(use_method)
   if (any(terra::res(x) != terra::res(y)) || !equivalent_crs(x, y) ||
       terra::ext(x) != terra::ext(y)) {
     if (!equivalent_crs(x, y)) {
       message("Projecting raster ...")
-      x <- terra::project(x, y, method = "near")
+      if (use_method == "auto") {
+        x <- terra::project(x, y)
+      } else {
+        x <- terra::project(x, y, method = use_method)
+      }
     }
     if (any(terra::res(x) != terra::res(y)) ||
         terra::ext(x) != terra::ext(y)) {
       message("Resampling raster ...")
-      x <- terra::resample(x, y, method = "near")
+      if (use_method == "auto") {
+        x <- terra::resample(x, y)
+      } else {
+        x <- terra::resample(x, y, method = use_method)
+      }
     }
   }
 
