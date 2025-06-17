@@ -93,10 +93,13 @@ aggregate_categories.SpatRaster <- function(x, y,
   # Aggregate and/or re-sample
   x_selected <- aggregate_layer(x_selected, y,
                                 use_fun = ifelse(binarize, "max", "mean"),
+                                use_method = ifelse(binarize, "near", "auto"),
                                 platform = platform)
 
   # Conform
-  x_selected <- conform_layer(x_selected, y, filename = filename, ...)
+  x_selected <- conform_layer(x_selected, y,
+                              use_method = ifelse(binarize, "near", "auto"),
+                              filename = filename, ...)
 
   return(x_selected)
 }
