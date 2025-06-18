@@ -116,7 +116,7 @@ transform_layer.SpatRaster <- function(x,
       x <- (x > a)*b + (x <= a)*x
     }
   }
-  names(x) <- sprintf("%s_trans", type)
+  names(x) <- paste0(names(x), sprintf("_%s_trans", type))
 
   # Write to file when required
   if (is.character(filename) && nchar(filename) > 0) {
