@@ -50,7 +50,7 @@ calc_pathway_viability_pr.SpatRaster <- function(rast, eve_pr,
                        (1 - rast_df[,2])^eve_pr$N_incursions[i]))
   }
   viable_prob_rast <- terra::rast(rast) # empty
-  viable_prob_rast[rast_df$cell] <- 1 - viable_prob
+  viable_prob_rast[rast_df$cell] <- round(1 - viable_prob, 15) # - float errors
 
   # Write to file when required
   if (is.character(filename) && nchar(filename) > 0) {
