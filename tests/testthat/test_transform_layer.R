@@ -20,19 +20,28 @@ test_that("various transformations", {
                                               a = 2, b = 3))
   expect_equal(trans_rast[idx][,1], 2*suit_values + 3)
   expect_silent(trans_rast <- transform_layer(suit_rast, type = "exponential"))
-  expect_equal(trans_rast[idx][,1], suit_values*0 + 1)
+  expect_equal(trans_rast[idx][,1], 1*exp(1*suit_values))
   expect_silent(trans_rast <- transform_layer(suit_rast, type = "exponential",
                                               a = 2))
-  expect_equal(trans_rast[idx][,1], 2^suit_values)
+  expect_equal(trans_rast[idx][,1], 2*exp(1*suit_values))
   expect_silent(trans_rast <- transform_layer(suit_rast, type = "exponential",
                                               b = 3))
-  expect_equal(trans_rast[idx][,1], suit_values^3)
+  expect_equal(trans_rast[idx][,1], 1*exp(3*suit_values))
   expect_silent(trans_rast <- transform_layer(suit_rast + 1,
                                               type = "logarithmic"))
   expect_equal(trans_rast[idx][,1], log(suit_values + 1))
   expect_silent(trans_rast <- transform_layer(suit_rast + 1,
+                                              type = "logarithmic", a = 2))
+  expect_equal(round(trans_rast[idx][,1], 10), round(log(suit_values + 3), 10))
+  expect_silent(trans_rast <- transform_layer(suit_rast + 1,
                                               type = "logarithmic", b = 10))
   expect_equal(trans_rast[idx][,1], log10(suit_values + 1))
+  expect_silent(trans_rast <- transform_layer(suit_rast, type = "power",
+                                              a = 2))
+  expect_equal(trans_rast[idx][,1], 2*suit_values^0)
+  expect_silent(trans_rast <- transform_layer(suit_rast, type = "power",
+                                              b = 3))
+  expect_equal(trans_rast[idx][,1], 1*suit_values^3)
   expect_silent(trans_rast <- transform_layer(suit_rast - 0.1, type = "lower"))
   expect_equal(trans_rast[idx][,1], (suit_values >= 0.1)*(suit_values - 0.1))
   expect_silent(trans_rast <- transform_layer(suit_rast, type = "lower",

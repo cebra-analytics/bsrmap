@@ -6,18 +6,21 @@
 #'
 #' @param x A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 #'   object representing the spatial layer to be transformed.
-#' @param type One of \code{"linear"} (\code{a*x + b}), \code{"exponential"}
-#'   (\code{a^x*x^b}), \code{"logarithmic"} (\code{log(x, base = b)}),
-#'   \code{"lower"} (\code{x[x < a] = b}), or \code{"upper"}
-#'   (\code{x[x > a] = b}).
+#' @param type One of \code{"linear"} (\code{a*x + b}),
+#'   \code{"exponential"} (\code{a*exp(b*x)}),
+#'   \code{"logarithmic"} (\code{log(x + a, base = b)}),
+#'   \code{"power"} (\code{a*x^b}),
+#'   \code{"lower"} (\code{x[x < a] = b}),
+#'   or \code{"upper"} (\code{x[x > a] = b}).
 #' @param a Numeric parameter for transformation as specified by \code{type}.
 #'   Default (\code{NULL}) implies: \code{1} for \code{"linear"},
-#'   \code{"exponential"}, and \code{"upper"}; and \code{0} for \code{"lower"}.
+#'   \code{"exponential"}, \code{"power"}, and \code{"upper"}; and \code{0}
+#'   for \code{"logarithmic"} and \code{"lower"}.
 #' @param b Numeric parameter for transformation as specified by \code{type}.
 #'   Default (\code{NULL}) implies: \code{0} for \code{"linear"},
-#'   \code{"exponential"}, and \code{"lower"}; \code{1} for \code{"upper"}; and
-#'   \code{exp(1)} (natural) for \code{"logarithmic"}. Can be set to \code{NA}
-#'   for \code{"lower"} or \code{"upper"} transformations.
+#'   \code{"power"}, and \code{"lower"}; \code{1} for \code{"exponential"} and
+#'   \code{"upper"}; and \code{exp(1)} (natural) for \code{"logarithmic"}. Can
+#'   be set to \code{NA} for \code{"lower"} or \code{"upper"} transformations.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A \code{terra::SpatRaster} object containing the transformed layer.
@@ -26,6 +29,7 @@ transform_layer <- function(x,
                             type = c("linear",
                                      "exponential",
                                      "logarithmic",
+                                     "power",
                                      "lower",
                                      "upper"),
                             a = NULL,
@@ -40,6 +44,7 @@ transform_layer.Raster <- function(x,
                                    type = c("linear",
                                             "exponential",
                                             "logarithmic",
+                                            "power",
                                             "lower",
                                             "upper"),
                                    a = NULL,
@@ -60,6 +65,7 @@ transform_layer.SpatRaster <- function(x,
                                        type = c("linear",
                                                 "exponential",
                                                 "logarithmic",
+                                                "power",
                                                 "lower",
                                                 "upper"),
                                        a = NULL,
@@ -71,18 +77,18 @@ transform_layer.SpatRaster <- function(x,
 
   # Resolve/check a and b
   if (is.null(a)) {
-    if (type %in% c("lower")) {
+    if (type %in% c("logarithmic", "lower")) {
       a <- 0
-    } else if (type %in% c("linear", "exponential", "upper")) {
+    } else if (type %in% c("linear", "exponential", "power", "upper")) {
       a <- 1
     }
   } else if (!is.numeric(a) || length(a) > 1) {
     stop("Parameter 'a' should be a single value numeric.", call. = FALSE)
   }
   if (is.null(b)) {
-    if (type %in% c("linear", "exponential", "lower")) {
+    if (type %in% c("linear", "power", "lower")) {
       b <- 0
-    } else if (type %in% c("upper")) {
+    } else if (type %in% c("exponential", "upper")) {
       b <- 1
     } else if (type %in% c("logarithmic")) {
       b <- exp(1)
@@ -100,9 +106,11 @@ transform_layer.SpatRaster <- function(x,
   if (type == "linear") {
     x <- a*x + b
   } else if (type == "exponential") {
-    x <- a^x*x^b
+    x <- a*exp(b*x)
   } else if (type == "logarithmic") {
-    x <- log(x, base = b)
+    x <- log(x + a, base = b)
+  } else if (type == "power") {
+    x <- a*x^b
   } else if (type == "lower") {
     if (is.na(b)) {
       x <- terra::app(x, function(v) ((v >= a) | NA)*v)

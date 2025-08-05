@@ -8,7 +8,7 @@
 \usage{
 transform_layer(
   x,
-  type = c("linear", "exponential", "logarithmic", "lower", "upper"),
+  type = c("linear", "exponential", "logarithmic", "power", "lower", "upper"),
   a = NULL,
   b = NULL,
   filename = "",
@@ -17,7 +17,7 @@ transform_layer(
 
 \method{transform_layer}{Raster}(
   x,
-  type = c("linear", "exponential", "logarithmic", "lower", "upper"),
+  type = c("linear", "exponential", "logarithmic", "power", "lower", "upper"),
   a = NULL,
   b = NULL,
   filename = "",
@@ -26,7 +26,7 @@ transform_layer(
 
 \method{transform_layer}{SpatRaster}(
   x,
-  type = c("linear", "exponential", "logarithmic", "lower", "upper"),
+  type = c("linear", "exponential", "logarithmic", "power", "lower", "upper"),
   a = NULL,
   b = NULL,
   filename = "",
@@ -37,20 +37,23 @@ transform_layer(
 \item{x}{A \code{raster::RasterLayer} or \code{terra::SpatRaster}
 object representing the spatial layer to be transformed.}
 
-\item{type}{One of \code{"linear"} (\code{a*x + b}), \code{"exponential"}
-(\code{a^x*x^b}), \code{"logarithmic"} (\code{log(x, base = b)}),
-\code{"lower"} (\code{x[x < a] = b}), or \code{"upper"}
-(\code{x[x > a] = b}).}
+\item{type}{One of \code{"linear"} (\code{a*x + b}),
+\code{"exponential"} (\code{a*exp(b*x)}),
+\code{"logarithmic"} (\code{log(x + a, base = b)}),
+\code{"power"} (\code{a*x^b}),
+\code{"lower"} (\code{x[x < a] = b}),
+or \code{"upper"} (\code{x[x > a] = b}).}
 
 \item{a}{Numeric parameter for transformation as specified by \code{type}.
 Default (\code{NULL}) implies: \code{1} for \code{"linear"},
-\code{"exponential"}, and \code{"upper"}; and \code{0} for \code{"lower"}.}
+\code{"exponential"}, \code{"power"}, and \code{"upper"}; and \code{0}
+for \code{"logarithmic"} and \code{"lower"}.}
 
 \item{b}{Numeric parameter for transformation as specified by \code{type}.
 Default (\code{NULL}) implies: \code{0} for \code{"linear"},
-\code{"exponential"}, and \code{"lower"}; \code{1} for \code{"upper"}; and
-\code{exp(1)} (natural) for \code{"logarithmic"}. Can be set to \code{NA}
-for \code{"lower"} or \code{"upper"} transformations.}
+\code{"power"}, and \code{"lower"}; \code{1} for \code{"exponential"} and
+\code{"upper"}; and \code{exp(1)} (natural) for \code{"logarithmic"}. Can
+be set to \code{NA} for \code{"lower"} or \code{"upper"} transformations.}
 
 \item{filename}{Optional file writing path (character).}
 
