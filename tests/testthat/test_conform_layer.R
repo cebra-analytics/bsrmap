@@ -30,7 +30,8 @@ test_that("conforms extent and resolution", {
   new_layer <- expect_silent(suppressMessages(
     conform_layer(global_sdm, suit_rast*0, na_strategy = "retain")))
   idx <- which(is.na(new_layer[]) & !is.na(suit_rast[]))
-  adj_idx <- terra::adjacent(new_layer, idx, array(c(0,1,rep(0,7)),c(3,3)))[,1]
+  adj_idx <- terra::adjacent(new_layer, idx,
+                             t(array(c(0,1,rep(0,7)),c(3,3))))[,1]
   adj_values <- new_layer[adj_idx][,1]
   expect_true(terra::ext(new_layer) == terra::ext(suit_rast))
   expect_true(all(terra::res(new_layer) == terra::res(suit_rast)))
