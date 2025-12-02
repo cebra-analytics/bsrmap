@@ -148,7 +148,7 @@ distribute_features.SpatRaster <- function(x, y,
 
     # Place values in a spatial raster using x as a template
     y_rast[[v]] <- as.numeric(x*0)
-    y_rast[[v]][x_y_df_v$cell] <- x_y_df_v$value
+    terra::set.values(y_rast[[v]], x_y_df_v$cell, x_y_df_v$value)
   }
 
   # Collect as a multilayered raster
