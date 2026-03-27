@@ -15,7 +15,9 @@
 #'   contained entirely within the spatial extent of \code{x} will be
 #'   distributed.
 #' @param vars A vector of character variable names corresponding to the
-#'   features (columns) in \code{y} to distribute.
+#'   features (columns) in \code{y} to distribute. Only numeric variables are
+#'   supported. If \code{NULL}, all numeric variables in \code{y} will be
+#'   distributed.
 #' @param filename Optional file writing path (character).
 #' @param ... Additional parameters (passed to \code{writeRaster}).
 #' @return A multi-layer \code{terra::SpatRaster} object containing a spatial
@@ -70,6 +72,28 @@ distribute_features.SpatRaster <- function(x, y,
     } else if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
       terra::crs(y) <- terra::crs(x)
     }
+
+    numeric_vars <- names(which(sapply(y, is.numeric)))
+    if(length(numeric_vars) == 0) {
+      stop("No numeric variables found in y.", call. = FALSE)
+    }
+  }
+
+  if (!is.null(vars)) {
+    vars <- unique(vars)
+    missing_vars <- setdiff(vars, numeric_vars)
+    if (length(missing_vars) > 0) {
+      stop(
+        "Variables ",
+        paste(missing_vars, collapse = ", "),
+        " are missing or not numeric.",
+        "\nAvailable numeric variables: ",
+        paste(numeric_vars, collapse = ", "),
+        call. = FALSE
+      )
+    }
+  } else {
+    vars <- numeric_vars
   }
 
   # Resolve x as a mask or a template
@@ -80,9 +104,7 @@ distribute_features.SpatRaster <- function(x, y,
   }
 
   # Select variables and add index column to y
-  if (!is.null(vars) && all(vars %in% names(y))) {
-    y <- y[,vars]
-  }
+  y <- y[,vars]
   y$index <- 1:nrow(y)
 
   # Extract x cell and coverage for each feature in y
@@ -126,11 +148,16 @@ distribute_features.SpatRaster <- function(x, y,
 
     # Place values in a spatial raster using x as a template
     y_rast[[v]] <- as.numeric(x*0)
-    y_rast[[v]][x_y_df_v$cell] <- x_y_df_v$value
+    terra::set.values(y_rast[[v]], x_y_df_v$cell, x_y_df_v$value)
   }
 
   # Collect as a multilayered raster
   y_rast <- terra::rast(y_rast)
+
+  # Set layer names to handle single layer case, 
+  # and clear any inherited varnames
+  terra::set.names(y_rast, vars)
+  terra::varnames(y_rast) <- ""
 
   # Write to file when required
   if (is.character(filename) && nchar(filename) > 0) {

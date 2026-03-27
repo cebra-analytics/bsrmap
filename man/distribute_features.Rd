@@ -23,7 +23,9 @@ contained entirely within the spatial extent of \code{x} will be
 distributed.}
 
 \item{vars}{A vector of character variable names corresponding to the
-features (columns) in \code{y} to distribute.}
+features (columns) in \code{y} to distribute. Only numeric variables are
+supported. If \code{NULL}, all numeric variables in \code{y} will be
+distributed.}
 
 \item{filename}{Optional file writing path (character).}
 
