@@ -153,11 +153,12 @@ distance_weight_layer.SpatRaster <- function(x, y,
       w <- w*(terra::values(terra::distance(x, y)) <= max_distance)
     }
 
+    # Place in raster
+    terra::values(weight_rast) <- w
+
     # Write to file when required
     if (is.character(filename) && nchar(filename) > 0) {
-      weight_rast <- terra::init(terra::rast(weight_rast), w, filename, ...)
-    } else {
-      terra::values(weight_rast) <- w
+      weight_rast <- terra::writeRaster(weight_rast, filename, ...)
     }
   }
 
