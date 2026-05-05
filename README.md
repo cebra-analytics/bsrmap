@@ -1,2 +1,133 @@
-# bsrmap
-Biosecurity Risk Mapping
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# bsrmap: Biosecurity Risk Mapping
+
+<!-- badges: start -->
+
+[![Last
+commit](https://img.shields.io/github/last-commit/cebra-analytics/bsrmap.svg)](https://github.com/cebra-analytics/bsrmap/commits/main)
+<!-- badges: end -->
+
+The *bsrmap* package provides a collection of functions for estimating
+the spatial distribution of risk, or establishment likelihood, of exotic
+pests, diseases, and other biosecurity threats. The risk mapping
+functions provide methods for transforming and combining data or spatial
+layers to estimate threat suitability and pathway arrival likelihoods.
+The function collection includes:
+
+1.  *abiotic_suitability*: builds a suitability layer for abiotic
+    factors, such as environment & climate, often via a Species
+    Distribution Model (SDM - see
+    <https://github.com/cebra-analytics/bssdm>)
+2.  *biotic_suitability*: builds a suitability layer for biotic factors,
+    such as threat host, often by combining vegetation, land-use, and
+    other landscape features suitable for the threat
+3.  *pest_suitability*: combines abiotic and biotic suitability layers
+    to estimate an overall threat suitability
+4.  *pathway_likelihood*: builds a likelihood layer based on (relative)
+    arrival likelihood layers and threat border leakage and
+    establishment viability estimates
+5.  *arrival_likelihood*: combines pathway likelihood layers to estimate
+    an overall threat arrival likelihood
+6.  *establishment_likelihood*: combines threat (pest) suitability and
+    arrival likelihood layers to estimate an overall threat
+    establishment likelihood (or risk)
+7.  *aggregate_categories*: builds a layer or mask from selected classes
+    from a categorical layer, such as vegetation or land-use, that are
+    indicative of threat suitability or arrival likelihood
+8.  *buffered_hull_layer*: calculates a spatial layer based on fitting a
+    alpha or convex hull with a distance buffer to a series of locations
+    that are indicative of threat suitability or arrival likelihood
+9.  *combine_layers*: combines layers that are indicative of threat
+    suitability or arrival likelihood
+10. *conform_layer*: conforms the spatial configuration (CRS, extent,
+    and resolution) of a spatial layer to that of a common configuration
+    for the risk map via a template layer
+11. *cumulative_likelihood*: calculates the ordered cumulative
+    likelihood of a spatial likelihood layer
+12. *distance_weight_layer*: calculates a spatial layer by applying a
+    distance decay using proximity to a series of weighted locations
+    that are indicative of threat suitability or arrival likelihood
+13. *distribute_features*: calculates a spatial layer by distributing
+    threat suitability or arrival values from shape polygons (e.g. land
+    management regions) across a raster layer
+14. *points_to_layer*: converts points to raster layers by assigning
+    each layer value to the nearest point within a maximum range
+15. *transform_layer*: transforms a spatial layer by applying a linear,
+    exponential, logarithmic, or power function, or substituting values
+    using lower or upper thresholds
+
+Note that functions 1-6 provide the functionality for building the core
+components of a risk map. Functions 7-15 provide useful utilities for
+building the layers required for the core components.
+
+## Installation
+
+You can install the latest version of *bsrmap* from
+[GitHub](https://github.com/) with:
+
+``` r
+remotes::install_github("cebra-analytics/bsrmap")
+```
+
+## Example
+
+The following example generates the establishment likelihood for a
+Hawkweed species (*Hieracium pilosella*), an exotic weed for Australia.
+We build the core components of our risk map at each step.
+
+### Step 1: Abiotic suitability
+
+### Step 2: Biotic suitability
+
+### Step 3: Threat suitability
+
+### Step 4: Pathway likelihoods
+
+### Step 5: Arrival likelihood
+
+### Step 6: Establishment likelihood
+
+## References
+
+Camac, J. S., Baumgartner, J. B., Robinson, A., & Elith, J. (2020).
+‘Developing pragmatic maps of establishment likelihood for plant pests’.
+Tech. Rep. 170607, *Centre of Excellence for Biosecurity Risk Analysis
+(CEBRA), The University of Melbourne, Melbourne*.
+<https://cebra.unimelb.edu.au/__data/assets/pdf_file/0012/3539397/170607_final_report.pdf>
+
+Camac, J. & Baumgartner, J. (2021). ‘*edmaps* (early detection maps) :
+An R package for creating Australian maps of establishment likelihood
+for terrestrial plant pests’. R package
+<https://github.com/jscamac/edmaps>
+
+Camac, J. S., Baumgartner, J. B., Hester, S., Subasinghe, R., & Collins,
+S. (2021). ‘Using edmaps & Zonation to inform multi-pest early detection
+surveillance designs’. Tech. Rep. 20121001, *Centre of Excellence for
+Biosecurity Risk Analysis (CEBRA), The University of Melbourne,
+Melbourne*.
+<https://cebra.unimelb.edu.au/__data/assets/pdf_file/0009/3889773/20121001_final_report.pdf>
+
+Camac, J. S. (2024). ’Detect: Designing post-border surveillance
+schemes. In Hester et al. (Eds.), Biosecurity: A Systems Perspective.
+*Taylor & Francis*. <doi:10.1201/9781003253204>
+
+Drake, J. M. (2015). ‘Range bagging: a new method for ecological niche
+modelling from presence-only data’. *Journal of the Royal Society
+Interface*, 12(107), 20150086. <doi:10.1098/rsif.2015.0086>
+
+Fick, S. E., Hijmans, R. J. (2017). ‘WorldClim 2: new 1-km spatial
+resolution climate surfaces for global land areas’. *International
+Journal of Climatology*, 37, 4302–4315. <doi:10.1002/joc.5086>
+
+GBIF.org (04 May 2026) ‘GBIF Occurrence Download’.
+<doi:10.15468/dl.q6q6fk>
+
+Zizka, A., Silvestro, D., Andermann, T., Azevedo, J., Duarte Ritter, C.,
+Edler, D., Farooq, H., Herdean, A., Ariza, M., Scharn, R., Svanteson,
+S., Wengstrom, N., Zizka, V., & Antonelli, A. (2019).
+‘CoordinateCleaner: standardized cleaning of occurrence records from
+biological collection databases.’ *Methods in Ecology and Evolution*, 7.
+<doi:10.1111/2041-210X.13152>, R package version 3.0.1,
+<https://github.com/ropensci/CoordinateCleaner>.
