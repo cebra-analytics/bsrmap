@@ -11,9 +11,12 @@ commit](https://img.shields.io/github/last-commit/cebra-analytics/bsrmap.svg)](h
 
 The *bsrmap* package provides a collection of functions for estimating
 the spatial distribution of risk, or establishment likelihood, of exotic
-pests, diseases, and other biosecurity threats. The risk mapping
-functions provide methods for transforming and combining data or spatial
-layers to estimate threat suitability and pathway arrival likelihoods.
+pests, diseases, and other biosecurity threats, and is based on *edmaps*
+(Camac & Baumgartner, 2021) and its associated research and consultative
+development, which is described in Camac et al. (2020; 2021) and Camac
+(2024). The risk mapping functions provide methods for transforming and
+combining data or spatial layers to estimate pest or threat suitability,
+pathway arrival likelihoods, and the overall establishment likelihood.
 The function collection includes:
 
 1.  *abiotic_suitability*: builds a suitability layer for abiotic
@@ -24,7 +27,7 @@ The function collection includes:
     such as threat host, often by combining vegetation, land-use, and
     other landscape features suitable for the threat
 3.  *pest_suitability*: combines abiotic and biotic suitability layers
-    to estimate an overall threat suitability
+    to estimate an overall pest or threat suitability
 4.  *pathway_likelihood*: builds a likelihood layer based on (relative)
     arrival likelihood layers and threat border leakage and
     establishment viability estimates
@@ -79,17 +82,342 @@ We build the core components of our risk map at each step.
 
 ### Step 1: Abiotic suitability
 
+The abiotic suitability for the threat generally refers to environmental
+factors, such as climate. Here we will utilise the *Range bagging*
+(Drake, 2015) SDM predicted climate suitability from our *bssdm* package
+example (see <https://github.com/cebra-analytics/bssdm>), which utilised
+global climate data from *WorldClim* (Fick & Hijmans, 2017;
+<http://www.worldclim.org>) and Hawkweed occurrence records from Global
+Biodiversity Information Facility (GBIF, 2026).
+
+``` r
+# Range bagging SDM predicted global climate suitability
+sdm_predicted <- terra::rast("data/sdm_predicted_suitability.tif")
+terra::plot(sdm_predicted, colNA = "grey",
+            main = "Range bagging SDM predicted climate suitability",
+            xlab = "Longitude (degrees)", ylab = "Latitude (degrees)")
+```
+
+<img src="man/figures/README-example_1_1-1.png" width="100%" style="display: block; margin: auto;" />
+
+The area of interest for our risk map is Australia only, which we will
+define using an Australian Albers (equal-area CRS) 1km-grid (resolution)
+template. Note that we will continue to use this template when building
+other components of our risk map so that layers may be consistently
+combined.
+
+``` r
+# Area of interest: Australian Albers CRS 1km-grid template
+area_template <- terra::rast("data/template_au_1km.tif")
+terra::plot(area_template, colNA = "grey",
+            main = "Australian Albers 1km-grid template")
+```
+
+<img src="man/figures/README-example_1_2-1.png" width="100%" style="display: block; margin: auto;" />
+
+We will now conform our global SDM output to our area of interest
+template via the *abiotic_suitability* function.
+
+``` r
+# Abiotic suitability (conform to area of interest template)
+abiotic_suitability <- bsrmap::abiotic_suitability(sdm_predicted,
+                                                   area_template)
+terra::plot(abiotic_suitability, main = "Abiotic suitability", colNA = "grey")
+```
+
+<img src="man/figures/README-example_1_3-1.png" width="100%" style="display: block; margin: auto;" />
+
 ### Step 2: Biotic suitability
+
+The biotic suitability of the threat generally refers to habitat or host
+requirements. Here we focus on vegetation and land-use types that are
+suitable for the Hawkweed. We firstly select suitable major vegetation
+groups (MVG) from National Vegetation Information System (NVIS) V7.0
+(NVIS, 2025) raster layers, and build a binary suitability mask using
+our *aggregate_categories* function. Users may download [NVIS Raster
+Geodatabases](https://www.dcceew.gov.au/environment/environment-information-australia/national-vegetation-information-system/data-products)
+and place them in a suitable directory (e.g. *downloaded_data*) before
+loading and transforming the NVIS layer.
+
+``` r
+# Suitable NVIS major vegetation groups (MGV)
+nvis_rast <- terra::rast(
+  paste0("../downloaded_data/NVIS_V7_0_AUST_RASTERS_EXT_ALL/",
+         "NVIS_V7_0_AUST_EXT.gdb"))[["NVIS7_0_AUST_EXT_MVG_ALB"]]
+head(terra::cats(nvis_rast)[[1]][,1:2])
+#>   Value                      MVG_NAME
+#> 1     1 Rainforests and Vine Thickets
+#> 2     2    Eucalypt Tall Open Forests
+#> 3     3         Eucalypt Open Forests
+#> 4     4     Eucalypt Low Open Forests
+#> 5     5            Eucalypt Woodlands
+#> 6     6  Acacia Forests and Woodlands
+all_cats <- terra::cats(nvis_rast)[[1]][,1]
+# Exclude 'closed' and aquatic vegetation categories
+selected_cats <- all_cats[which(!all_cats %in% c(1,2,15,23,24,28))]
+# Aggregate and binarise selected categories
+biotic_nvis_suitability <- bsrmap::aggregate_categories(
+  nvis_rast, area_template,
+  categories = all_cats, selected = selected_cats,
+  binarize = TRUE)
+#> |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          
+terra::plot(biotic_nvis_suitability, colNA = "grey",
+            main = "Suitable NVIS major vegetation")
+```
+
+<img src="man/figures/README-example_2_1-1.png" width="100%" style="display: block; margin: auto;" />
+
+Next we select suitable (or exclude unsuitable) land-use types from
+Catchment Scale Land Use of Australia (ABARES, 2024) raster layers,
+which may be downloaded from [Australian Bureau of Agricultural and
+Resource Economics and Sciences
+(ABARES)](https://doi.org/10.25814/2w2p-ph98) and placed in a suitable
+directory. Again, we will use our *aggregate_categories* function to
+build another binary suitability mask for the Hawkweed.
+
+``` r
+# Suitable land use categories
+land_use_rast <-
+  terra::rast("../downloaded_data/clum_50m_2023_v2/clum_50m_2023_v2.tif")
+head(terra::cats(land_use_rast)[[1]][,c(1, 3)])
+#>   Value                                TERTV8
+#> 1   110             1.1.0 Nature conservation
+#> 2   111          1.1.1 Strict nature reserves
+#> 3   112                 1.1.2 Wilderness area
+#> 4   113                   1.1.3 National park
+#> 5   114      1.1.4 Natural feature protection
+#> 6   115 1.1.5 Habitat/species management area
+all_cats <- terra::cats(land_use_rast)[[1]][,1]
+# Exclude aquatic land-use categories
+selected_cats <- all_cats[which(all_cats < 600)]
+# Aggregate and binarise selected categories
+biotic_land_use_suitability <- bsrmap::aggregate_categories(
+  land_use_rast, area_template,
+  categories = all_cats,
+  selected = selected_cats,
+  binarize = TRUE)
+#> |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          
+terra::plot(biotic_land_use_suitability, colNA = "grey",
+            main = "Suitable ABARES land use")
+```
+
+<img src="man/figures/README-example_2_2-1.png" width="100%" style="display: block; margin: auto;" />
+
+Finally we can combine our vegetation and land use suitability mask
+layers into an overall biotic suitability layer via our
+*biotic_suitability* function. Note that we combine our layers via the
+“union” function, since a location (grid-cell) is suitable if either the
+vegetation or land-use is suitable.
+
+``` r
+# Combine (union) biotic suitability layers
+biotic_suitability <- bsrmap::biotic_suitability(
+  terra::rast(list(biotic_nvis_suitability, biotic_land_use_suitability)),
+  use_fun = "union")
+terra::plot(biotic_suitability, main = "Biotic suitability", colNA = "grey")
+```
+
+<img src="man/figures/README-example_2_3-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Step 3: Threat suitability
 
+We can now calculate the overall threat suitability by combining the
+abiotic and biotic suitability layers via our *pest_suitability*
+function. Note that this time we combine our layers via the “prod”
+function, since a location (grid-cell) is only suitable if both the
+abiotic and biotic conditions are suitable.
+
+``` r
+# Combine (multiply) abiotic and biotic suitability layers
+threat_suitability <- bsrmap::pest_suitability(
+  abiotic_suitability, biotic_suitability,
+  use_fun = "prod")
+terra::plot(threat_suitability, main = "Threat suitability", colNA = "grey")
+```
+
+<img src="man/figures/README-example_3-1.png" width="100%" style="display: block; margin: auto;" />
+
 ### Step 4: Pathway likelihoods
+
+The likelihood of the threat arriving in area of interest via one or
+more pathways may be calculated via our *pathway_likelihood* function,
+which builds each likelihood layer based on (relative) arrival
+likelihood layers and threat border leakage and establishment viability
+estimates. Here will calculate the threat arrival likelihoods for three
+different pathways:
+
+1.  Arrivals via agricultural products
+2.  Tourist arrivals
+3.  Mail arrivals
+
+Arrivals via agricultural products can be estimated using data
+pertaining to the distribution of fertiliser use across Australian
+Natural Resource Management (NRM) regions (Australian Bureau of
+Statistics, 2016-17). This data was collated and transformed into
+shape-file layers by CEBRA (as described in Camac et al., 2020). The
+fertiliser data values for each NRM can distributed via our
+*distribute_features* function across an agricultural land-use raster
+layer, again calculated via our *aggregate_categories* using Catchment
+Scale Land Use of Australia (ABARES, 2024) raster layers. The resultant
+spatially-weighted layer can then used in our *pathway_likelihood*
+function to spatially distribute region-wide arrival likelihood
+estimates, which are generated within the function using estimated
+threat border leakage and establishment viability parameters (95%
+confidence intervals) for the pathway.
+
+``` r
+# Aggregate and binarise agricultural land use categories
+agriculture_land_use <- bsrmap::aggregate_categories(
+  land_use_rast, area_template,
+  categories = all_cats,
+  selected = c(330, 331, 332, 333, 334, 335, 336, 337, 338,
+               340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350,
+               351, 352, 353, 420, 421, 423, 424, 430, 431, 432, 433,
+               434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444,
+               445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 510,
+               511, 512, 513, 514),
+  binarize = TRUE)
+#> |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          
+terra::plot(agriculture_land_use, colNA = "grey",
+            main = "ABARES agricultural land use")
+```
+
+<img src="man/figures/README-example_4_1-1.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+# Fertiliser use NRM distribution
+fertiliser_nrm <- terra::vect("data/fertiliser_nrm.gpkg")
+# Distribute fertiliser use across agricultural land use
+fertiliser_distr <- bsrmap::distribute_features(
+  agriculture_land_use, fertiliser_nrm,
+  vars = "Fert_t")
+terra::plot(fertiliser_distr, colNA = "grey",
+            main = "Fertiliser use distributed across agricultural land use")
+```
+
+<img src="man/figures/README-example_4_1-2.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+# Agricultural pathway likelihood
+agriculture_likelihood <- bsrmap::pathway_likelihood(
+  pathway_layers = fertiliser_distr,
+  leakage_rate_ci = c(3, 30),
+  viability_rate_ci = c(0.001, 0.05),
+  confidence = 0.95)
+terra::plot(log(agriculture_likelihood + 1e-9, base = 10), colNA = "grey",
+            main = "Agricultural pathway likelihood (log)")
+```
+
+<img src="man/figures/README-example_4_1-3.png" width="100%" style="display: block; margin: auto;" />
+
+Arrivals via tourists can be estimated using data pertaining to the
+distribution of tourist accommodation (Australian Bureau of Statistics,
+2015-16). The distribution data was collated and transformed into a
+raster layer by CEBRA (as described in Camac et al., 2020). We firstly
+conform this layer to our area of interest template via our
+*conform_layer* function. We then weight the distribution of tourist
+accommodation by their distance from major airports via our
+*distance_weight_layer* function, such that 50% of the likelihood is
+distributed within 500 km. The resultant spatially-weighted layer can
+then used in our *pathway_likelihood* function to spatially distribute
+region-wide arrival likelihood estimates, which are generated within the
+function using estimated threat border leakage and establishment
+viability parameters (95% confidence intervals) for the pathway.
+
+``` r
+# Conform the tourist accommodation distribution layer to template
+tourist_distr <- bsrmap::conform_layer(
+  terra::rast("data/tourist_accommodation.tif"), area_template)
+terra::plot(log10(tourist_distr + 1), colNA = "grey",
+            main = "Tourist accommodation (log)")
+```
+
+<img src="man/figures/README-example_4_2-1.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+# Accommodation distribution weighted by distance from airport
+airports_df <- read.csv("data/airports.csv")
+distance_weight <- bsrmap::distance_weight_layer(
+  area_template, airports_df,
+  beta = log(0.5)/500,
+  weights = NULL)
+terra::plot(distance_weight, colNA = "grey",
+            main = "Airport distance weight (500km half-decay)")
+```
+
+<img src="man/figures/README-example_4_2-2.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+# Tourists pathway likelihood
+tourists_likelihood <- bsrmap::pathway_likelihood(
+  pathway_layers = terra::rast(list(tourist_distr, distance_weight)),
+  leakage_rate_ci = c(1, 10),
+  viability_rate_ci = c(0.001, 0.05),
+  confidence = 0.95)
+terra::plot(log(tourists_likelihood + 1e-7, base = 10), colNA = "grey",
+            main = "Tourists pathway likelihood (log)")
+```
+
+<img src="man/figures/README-example_4_2-3.png" width="100%" style="display: block; margin: auto;" />
+
+Arrivals via mail can be estimated using data pertaining to the
+distribution of human population in Australia (Australian Bureau of
+Statistics, 2024-25). We firstly conform this layer to our area of
+interest template via our *conform_layer* function. The resultant
+spatially-weighted layer can then used in our *pathway_likelihood*
+function to spatially distribute region-wide arrival likelihood
+estimates, which are generated within the function using estimated
+threat border leakage and establishment viability parameters (95%
+confidence intervals) for the pathway.
+
+``` r
+# Conform the human population distribution layer to template
+population_distr <- bsrmap::conform_layer(
+  terra::rast("data/australian_population_2025.tif"), area_template)
+terra::plot(log10(population_distr + 1), colNA = "grey",
+            main = "Human population (log)")
+```
+
+<img src="man/figures/README-example_4_3-1.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+# Mail pathway likelihood
+mail_likelihood <- bsrmap::pathway_likelihood(
+  pathway_layers = population_distr,
+  leakage_rate_ci = c(1, 10),
+  viability_rate_ci = c(0.3, 0.9),
+  confidence = 0.95)
+terra::plot(log(mail_likelihood + 1e-8, base = 10), colNA = "grey",
+            main = "Mail pathway likelihood (log)")
+```
+
+<img src="man/figures/README-example_4_3-2.png" width="100%" style="display: block; margin: auto;" />
 
 ### Step 5: Arrival likelihood
 
 ### Step 6: Establishment likelihood
 
 ## References
+
+ABARES (2024). ‘Catchment Scale Land Use of Australia – Update December
+2023 version 2’, *Australian Bureau of Agricultural and Resource
+Economics and Sciences*, Canberra, June, CC BY 4.0,
+<doi:10.25814/2w2p-ph98>
+
+Australian Bureau of Statistics (Reference period: 2015-16 financial
+year) ‘Tourist accommodation - Australia’ \[data set\], Tourist
+Accommodation, Australia. *ABS*.
+<https://www.abs.gov.au/statistics/industry/tourism-and-transport/tourist-accommodation-australia/latest-release>
+
+Australian Bureau of Statistics (Reference period: 2016-17 financial
+year) ‘Fertiliser use, Australia, year ended 30 June 2017’ \[data set\],
+Land Management and Farming in Australia. *ABS*.
+<https://www.abs.gov.au/statistics/industry/agriculture/land-management-and-farming-australia/latest-release>
+
+Australian Bureau of Statistics (Reference period: 2024-25 financial
+year) ‘Australian population grid 2025 in GeoTIFF format’ \[data set\],
+Regional population. *ABS*.
+<https://www.abs.gov.au/statistics/people/population/regional-population/latest-release>
 
 Camac, J. S., Baumgartner, J. B., Robinson, A., & Elith, J. (2020).
 ‘Developing pragmatic maps of establishment likelihood for plant pests’.
@@ -123,6 +451,10 @@ Journal of Climatology*, 37, 4302–4315. <doi:10.1002/joc.5086>
 
 GBIF.org (04 May 2026) ‘GBIF Occurrence Download’.
 <doi:10.15468/dl.q6q6fk>
+
+National Vegetation Information System (NVIS) V7.0
+<https://www.dcceew.gov.au/> from copyright Commonwealth of Australia
+2025
 
 Zizka, A., Silvestro, D., Andermann, T., Azevedo, J., Duarte Ritter, C.,
 Edler, D., Farooq, H., Herdean, A., Ariza, M., Scharn, R., Svanteson,

@@ -55,7 +55,7 @@ The following example generates the establishment likelihood for a Hawkweed spec
 
 The abiotic suitability for the threat generally refers to environmental factors, such as climate. Here we will utilise the *Range bagging* (Drake, 2015) SDM predicted climate suitability from our *bssdm* package example (see <https://github.com/cebra-analytics/bssdm>), which utilised global climate data from *WorldClim* (Fick & Hijmans, 2017; <http://www.worldclim.org>) and Hawkweed occurrence records from Global Biodiversity Information Facility (GBIF, 2026).
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_1_1, message = FALSE, fig.align = "center"}
 # Range bagging SDM predicted global climate suitability
 sdm_predicted <- terra::rast("data/sdm_predicted_suitability.tif")
 terra::plot(sdm_predicted, colNA = "grey",
@@ -65,7 +65,7 @@ terra::plot(sdm_predicted, colNA = "grey",
 
 The area of interest for our risk map is Australia only, which we will define using an Australian Albers (equal-area CRS) 1km-grid (resolution) template. Note that we will continue to use this template when building other components of our risk map so that layers may be consistently combined.
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_1_2, message = FALSE, fig.align = "center"}
 # Area of interest: Australian Albers CRS 1km-grid template
 area_template <- terra::rast("data/template_au_1km.tif")
 terra::plot(area_template, colNA = "grey",
@@ -74,7 +74,7 @@ terra::plot(area_template, colNA = "grey",
 
 We will now conform our global SDM output to our area of interest template via the *abiotic_suitability* function.
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_1_3, message = FALSE, fig.align = "center"}
 # Abiotic suitability (conform to area of interest template)
 abiotic_suitability <- bsrmap::abiotic_suitability(sdm_predicted,
                                                    area_template)
@@ -85,7 +85,7 @@ terra::plot(abiotic_suitability, main = "Abiotic suitability", colNA = "grey")
 
 The biotic suitability of the threat generally refers to habitat or host requirements. Here we focus on vegetation and land-use types that are suitable for the Hawkweed. We firstly select suitable major vegetation groups (MVG) from National Vegetation Information System (NVIS) V7.0 (NVIS, 2025) raster layers, and build a binary suitability mask using our *aggregate_categories* function. Users may download [NVIS Raster Geodatabases](https://www.dcceew.gov.au/environment/environment-information-australia/national-vegetation-information-system/data-products) and place them in a suitable directory (e.g. *downloaded_data*) before loading and transforming the NVIS layer.
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_2_1, message = FALSE, fig.align = "center"}
 # Suitable NVIS major vegetation groups (MGV)
 nvis_rast <- terra::rast(
   paste0("../downloaded_data/NVIS_V7_0_AUST_RASTERS_EXT_ALL/",
@@ -105,7 +105,7 @@ terra::plot(biotic_nvis_suitability, colNA = "grey",
 
 Next we select suitable (or exclude unsuitable) land-use types from Catchment Scale Land Use of Australia (ABARES, 2024) raster layers, which may be downloaded from [Australian Bureau of Agricultural and Resource Economics and Sciences (ABARES)](https://doi.org/10.25814/2w2p-ph98) and placed in a suitable directory. Again, we will use our *aggregate_categories* function to build another binary suitability mask for the Hawkweed.
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_2_2, message = FALSE, fig.align = "center"}
 # Suitable land use categories
 land_use_rast <-
   terra::rast("../downloaded_data/clum_50m_2023_v2/clum_50m_2023_v2.tif")
@@ -125,7 +125,7 @@ terra::plot(biotic_land_use_suitability, colNA = "grey",
 
 Finally we can combine our vegetation and land use suitability mask layers into an overall biotic suitability layer via our *biotic_suitability* function. Note that we combine our layers via the "union" function, since a location (grid-cell) is suitable if either the vegetation or land-use is suitable.
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_2_3, message = FALSE, fig.align = "center"}
 # Combine (union) biotic suitability layers
 biotic_suitability <- bsrmap::biotic_suitability(
   terra::rast(list(biotic_nvis_suitability, biotic_land_use_suitability)),
@@ -137,7 +137,7 @@ terra::plot(biotic_suitability, main = "Biotic suitability", colNA = "grey")
 
 We can now calculate the overall threat suitability by combining the abiotic and biotic suitability layers via our *pest_suitability* function. Note that this time we combine our layers via the "prod" function, since a location (grid-cell) is only suitable if both the abiotic and biotic conditions are suitable.
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_3, message = FALSE, fig.align = "center"}
 # Combine (multiply) abiotic and biotic suitability layers
 threat_suitability <- bsrmap::pest_suitability(
   abiotic_suitability, biotic_suitability,
@@ -155,7 +155,7 @@ The likelihood of the threat arriving in area of interest via one or more pathwa
 
 Arrivals via agricultural products can be estimated using data pertaining to the distribution of fertiliser use across Australian Natural Resource Management (NRM) regions (Australian Bureau of Statistics, 2016-17). This data was collated and transformed into shape-file layers by CEBRA (as described in Camac et al., 2020). The fertiliser data values for each NRM can distributed via our *distribute_features* function across an agricultural land-use raster layer, again calculated via our *aggregate_categories* using Catchment Scale Land Use of Australia (ABARES, 2024) raster layers. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_4_1, message = FALSE, fig.align = "center"}
 # Aggregate and binarise agricultural land use categories
 agriculture_land_use <- bsrmap::aggregate_categories(
   land_use_rast, area_template,
@@ -189,7 +189,7 @@ terra::plot(log(agriculture_likelihood + 1e-9, base = 10), colNA = "grey",
 
 Arrivals via tourists can be estimated using data pertaining to the distribution of tourist accommodation (Australian Bureau of Statistics, 2015-16). The distribution data was collated and transformed into a raster layer by CEBRA (as described in Camac et al., 2020). We firstly conform this layer to our area of interest template via our *conform_layer* function. We then weight the distribution of tourist accommodation by their distance from major airports via our *distance_weight_layer* function, such that 50% of the likelihood is distributed within 500 km. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_4_2, message = FALSE, fig.align = "center"}
 # Conform the tourist accommodation distribution layer to template
 tourist_distr <- bsrmap::conform_layer(
   terra::rast("data/tourist_accommodation.tif"), area_template)
@@ -215,7 +215,7 @@ terra::plot(log(tourists_likelihood + 1e-7, base = 10), colNA = "grey",
 
 Arrivals via mail can be estimated using data pertaining to the distribution of human population in Australia (Australian Bureau of Statistics, 2024-25). We firstly conform this layer to our area of interest template via our *conform_layer* function. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
 
-```{r example, message = FALSE, fig.align = "center"}
+```{r example_4_3, message = FALSE, fig.align = "center"}
 # Conform the human population distribution layer to template
 population_distr <- bsrmap::conform_layer(
   terra::rast("data/australian_population_2025.tif"), area_template)
