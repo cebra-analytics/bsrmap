@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+terra::terraOptions(progress = 0)
 ```
 
 # bsrmap: Biosecurity Risk Mapping
@@ -150,8 +151,10 @@ terra::plot(threat_suitability, main = "Threat suitability", colNA = "grey")
 The likelihood of the threat arriving in area of interest via one or more pathways may be calculated via our *pathway_likelihood* function, which builds each likelihood layer based on (relative) arrival likelihood layers and threat border leakage and establishment viability estimates. Here will calculate the threat arrival likelihoods for three different pathways:
 
 1. Arrivals via agricultural products
-1. Tourist arrivals
-1. Mail arrivals
+1. Arrivals via tourists
+1. Arrivals via mail
+
+#### Agricultural products pathway
 
 Arrivals via agricultural products can be estimated using data pertaining to the distribution of fertiliser use across Australian Natural Resource Management (NRM) regions (Australian Bureau of Statistics, 2016-17). This data was collated and transformed into shape-file layers by CEBRA (as described in Camac et al., 2020). The fertiliser data values for each NRM can distributed via our *distribute_features* function across an agricultural land-use raster layer, again calculated via our *aggregate_categories* using Catchment Scale Land Use of Australia (ABARES, 2024) raster layers. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
 
@@ -177,15 +180,17 @@ fertiliser_distr <- bsrmap::distribute_features(
   vars = "Fert_t")
 terra::plot(fertiliser_distr, colNA = "grey",
             main = "Fertiliser use distributed across agricultural land use")
-# Agricultural pathway likelihood
+# Agricultural products pathway likelihood
 agriculture_likelihood <- bsrmap::pathway_likelihood(
   pathway_layers = fertiliser_distr,
   leakage_rate_ci = c(3, 30),
   viability_rate_ci = c(0.001, 0.05),
   confidence = 0.95)
 terra::plot(log(agriculture_likelihood + 1e-9, base = 10), colNA = "grey",
-            main = "Agricultural pathway likelihood (log)")
+            main = "Agricultural products pathway likelihood (log)")
 ```
+
+#### Tourists pathway
 
 Arrivals via tourists can be estimated using data pertaining to the distribution of tourist accommodation (Australian Bureau of Statistics, 2015-16). The distribution data was collated and transformed into a raster layer by CEBRA (as described in Camac et al., 2020). We firstly conform this layer to our area of interest template via our *conform_layer* function. We then weight the distribution of tourist accommodation by their distance from major airports via our *distance_weight_layer* function, such that 50% of the likelihood is distributed within 500 km. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
 
@@ -213,6 +218,8 @@ terra::plot(log(tourists_likelihood + 1e-7, base = 10), colNA = "grey",
             main = "Tourists pathway likelihood (log)")
 ```
 
+#### Mail pathway
+
 Arrivals via mail can be estimated using data pertaining to the distribution of human population in Australia (Australian Bureau of Statistics, 2024-25). We firstly conform this layer to our area of interest template via our *conform_layer* function. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
 
 ```{r example_4_3, message = FALSE, fig.align = "center"}
@@ -233,8 +240,43 @@ terra::plot(log(mail_likelihood + 1e-8, base = 10), colNA = "grey",
 
 ### Step 5: Arrival likelihood
 
+We can now calculate the overall arrival likelihood by combining our three pathway likelihood layers via our *arrival_likelihood* function. Note that this time we combine our likelihood layers via the "union" function, which is calculated via $1-\prod_{i=1}^n(1-p_i)$ at each location (grid-cell) using the local arrival likelihoods $p_i$ for each $i$ of $n$ pathways. For small likelihood values the "union" function is approximately equivalent to adding the likelihood values. For example:
+
+```{r example_5_1, message = FALSE, fig.align = "center"}
+cell = 12975568
+p_1 = agriculture_likelihood[cell][,1]
+p_2 = tourists_likelihood[cell][,1]
+p_3 = mail_likelihood[cell][,1]
+1 - (1 - p_1)*(1 - p_2)*(1 - p_3)
+p_1 + p_2 + p_3
+```
+
+Let's now calculate the overall arrival likelihood layer.
+
+```{r example_5_2, message = FALSE, fig.align = "center"}
+# Combine pathway arrival likelihood layers
+arrival_likelihood <- bsrmap::arrival_likelihood(
+  terra::rast(list(agriculture_likelihood,
+                   tourists_likelihood,
+                   mail_likelihood)),
+  use_fun = "union")
+arrival_likelihood[cell][,1] # compare with "union" example
+terra::plot(log(arrival_likelihood + 1e-9, base = 10), colNA = "grey",
+            main = "Arrival likelihood (log)")
+```
+
 ### Step 6: Establishment likelihood
 
+Finally, we can now calculate the overall threat establishment likelihood by combining the threat suitability and arrival likelihood layers via our *establishment_likelihood* function. Note that this time we combine our layers via the "prod" function, since for the threat to establish at a location (grid-cell), the location must be sufficiently suitable, and likely to arrive at the location (assuming reasonable independence between suitability and arrival probabilities).
+
+```{r example_6, message = FALSE, fig.align = "center"}
+# Combine threat suitability and arrival likelihood layers
+establishment_likelihood <- bsrmap::establishment_likelihood(
+  threat_suitability, arrival_likelihood,
+  use_fun = "prod")
+terra::plot(log(establishment_likelihood + 1e-12, base = 10), colNA = "grey",
+            main = "Establishment likelihood (log)")
+```
 
 ## References
 

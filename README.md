@@ -160,7 +160,6 @@ biotic_nvis_suitability <- bsrmap::aggregate_categories(
   nvis_rast, area_template,
   categories = all_cats, selected = selected_cats,
   binarize = TRUE)
-#> |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          
 terra::plot(biotic_nvis_suitability, colNA = "grey",
             main = "Suitable NVIS major vegetation")
 ```
@@ -196,7 +195,6 @@ biotic_land_use_suitability <- bsrmap::aggregate_categories(
   categories = all_cats,
   selected = selected_cats,
   binarize = TRUE)
-#> |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          
 terra::plot(biotic_land_use_suitability, colNA = "grey",
             main = "Suitable ABARES land use")
 ```
@@ -247,8 +245,10 @@ estimates. Here will calculate the threat arrival likelihoods for three
 different pathways:
 
 1.  Arrivals via agricultural products
-2.  Tourist arrivals
-3.  Mail arrivals
+2.  Arrivals via tourists
+3.  Arrivals via mail
+
+#### Agricultural products pathway
 
 Arrivals via agricultural products can be estimated using data
 pertaining to the distribution of fertiliser use across Australian
@@ -277,7 +277,6 @@ agriculture_land_use <- bsrmap::aggregate_categories(
                445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 510,
                511, 512, 513, 514),
   binarize = TRUE)
-#> |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          
 terra::plot(agriculture_land_use, colNA = "grey",
             main = "ABARES agricultural land use")
 ```
@@ -298,17 +297,19 @@ terra::plot(fertiliser_distr, colNA = "grey",
 <img src="man/figures/README-example_4_1-2.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
-# Agricultural pathway likelihood
+# Agricultural products pathway likelihood
 agriculture_likelihood <- bsrmap::pathway_likelihood(
   pathway_layers = fertiliser_distr,
   leakage_rate_ci = c(3, 30),
   viability_rate_ci = c(0.001, 0.05),
   confidence = 0.95)
 terra::plot(log(agriculture_likelihood + 1e-9, base = 10), colNA = "grey",
-            main = "Agricultural pathway likelihood (log)")
+            main = "Agricultural products pathway likelihood (log)")
 ```
 
 <img src="man/figures/README-example_4_1-3.png" width="100%" style="display: block; margin: auto;" />
+
+#### Tourists pathway
 
 Arrivals via tourists can be estimated using data pertaining to the
 distribution of tourist accommodation (Australian Bureau of Statistics,
@@ -360,6 +361,8 @@ terra::plot(log(tourists_likelihood + 1e-7, base = 10), colNA = "grey",
 
 <img src="man/figures/README-example_4_2-3.png" width="100%" style="display: block; margin: auto;" />
 
+#### Mail pathway
+
 Arrivals via mail can be estimated using data pertaining to the
 distribution of human population in Australia (Australian Bureau of
 Statistics, 2024-25). We firstly conform this layer to our area of
@@ -395,7 +398,62 @@ terra::plot(log(mail_likelihood + 1e-8, base = 10), colNA = "grey",
 
 ### Step 5: Arrival likelihood
 
+We can now calculate the overall arrival likelihood by combining our
+three pathway likelihood layers via our *arrival_likelihood* function.
+Note that this time we combine our likelihood layers via the “union”
+function, which is calculated via $1-\prod_{i=1}^n(1-p_i)$ at each
+location (grid-cell) using the local arrival likelihoods $p_i$ for each
+$i$ of $n$ pathways. For small likelihood values the “union” function is
+approximately equivalent to adding the likelihood values. For example:
+
+``` r
+cell = 12975568
+p_1 = agriculture_likelihood[cell][,1]
+p_2 = tourists_likelihood[cell][,1]
+p_3 = mail_likelihood[cell][,1]
+1 - (1 - p_1)*(1 - p_2)*(1 - p_3)
+#> [1] 0.0001654734
+p_1 + p_2 + p_3
+#> [1] 0.0001654749
+```
+
+Let’s now calculate the overall arrival likelihood layer.
+
+``` r
+# Combine pathway arrival likelihood layers
+arrival_likelihood <- bsrmap::arrival_likelihood(
+  terra::rast(list(agriculture_likelihood,
+                   tourists_likelihood,
+                   mail_likelihood)),
+  use_fun = "union")
+arrival_likelihood[cell][,1] # compare with "union" example
+#> [1] 0.0001654734
+terra::plot(log(arrival_likelihood + 1e-9, base = 10), colNA = "grey",
+            main = "Arrival likelihood (log)")
+```
+
+<img src="man/figures/README-example_5_2-1.png" width="100%" style="display: block; margin: auto;" />
+
 ### Step 6: Establishment likelihood
+
+Finally, we can now calculate the overall threat establishment
+likelihood by combining the threat suitability and arrival likelihood
+layers via our *establishment_likelihood* function. Note that this time
+we combine our layers via the “prod” function, since for the threat to
+establish at a location (grid-cell), the location must be sufficiently
+suitable, and likely to arrive at the location (assuming reasonable
+independence between suitability and arrival probabilities).
+
+``` r
+# Combine threat suitability and arrival likelihood layers
+establishment_likelihood <- bsrmap::establishment_likelihood(
+  threat_suitability, arrival_likelihood,
+  use_fun = "prod")
+terra::plot(log(establishment_likelihood + 1e-12, base = 10), colNA = "grey",
+            main = "Establishment likelihood (log)")
+```
+
+<img src="man/figures/README-example_6-1.png" width="100%" style="display: block; margin: auto;" />
 
 ## References
 
