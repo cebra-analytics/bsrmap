@@ -304,5 +304,3 @@ Fick, S. E., Hijmans, R. J. (2017). 'WorldClim 2: new 1-km spatial resolution cl
 GBIF.org (04 May 2026) 'GBIF Occurrence Download'. <doi:10.15468/dl.q6q6fk>
 
 National Vegetation Information System (NVIS) V7.0 <https://www.dcceew.gov.au/> from copyright Commonwealth of Australia 2025
-
-Zizka, A., Silvestro, D., Andermann, T., Azevedo, J., Duarte Ritter, C., Edler, D., Farooq, H., Herdean, A., Ariza, M., Scharn, R., Svanteson, S., Wengstrom, N., Zizka, V., & Antonelli, A. (2019). 'CoordinateCleaner: standardized cleaning of occurrence records from biological collection databases.' *Methods in Ecology and Evolution*, 7. <doi:10.1111/2041-210X.13152>, R package version 3.0.1, <https://github.com/ropensci/CoordinateCleaner>.
