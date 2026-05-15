@@ -460,7 +460,7 @@ terra::plot(log(establishment_likelihood + 1e-12, base = 10), colNA = "grey",
 ABARES (2024). ‘Catchment Scale Land Use of Australia – Update December
 2023 version 2’, *Australian Bureau of Agricultural and Resource
 Economics and Sciences*, Canberra, June, CC BY 4.0,
-<doi:10.25814/2w2p-ph98>
+[doi:10.25814/2w2p-ph98](https://doi.org/10.25814/2w2p-ph98)
 
 Australian Bureau of Statistics (Reference period: 2015-16 financial
 year) ‘Tourist accommodation - Australia’ \[data set\], Tourist
@@ -497,18 +497,18 @@ Melbourne*.
 
 Camac, J. S. (2024). ’Detect: Designing post-border surveillance
 schemes. In Hester et al. (Eds.), Biosecurity: A Systems Perspective.
-*Taylor & Francis*. <doi:10.1201/9781003253204>
+*Taylor & Francis*. [doi:10.1201/9781003253204](https://doi.org/10.1201/9781003253204)
 
 Drake, J. M. (2015). ‘Range bagging: a new method for ecological niche
 modelling from presence-only data’. *Journal of the Royal Society
-Interface*, 12(107), 20150086. <doi:10.1098/rsif.2015.0086>
+Interface*, 12(107), 20150086. [doi:10.1098/rsif.2015.0086](https://doi.org/10.1098/rsif.2015.0086)
 
 Fick, S. E., Hijmans, R. J. (2017). ‘WorldClim 2: new 1-km spatial
 resolution climate surfaces for global land areas’. *International
-Journal of Climatology*, 37, 4302–4315. <doi:10.1002/joc.5086>
+Journal of Climatology*, 37, 4302–4315. [doi:10.1002/joc.5086](https://doi.org/10.1002/joc.5086)
 
 GBIF.org (04 May 2026) ‘GBIF Occurrence Download’.
-<doi:10.15468/dl.q6q6fk>
+[doi:10.15468/dl.q6q6fk](https://doi.org/10.15468/dl.q6q6fk)
 
 National Vegetation Information System (NVIS) V7.0
 <https://www.dcceew.gov.au/> from copyright Commonwealth of Australia
