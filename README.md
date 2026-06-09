@@ -80,6 +80,11 @@ The following example generates the establishment likelihood for a
 Hawkweed species (*Hieracium pilosella*), an exotic weed for Australia.
 We build the core components of our risk map at each step.
 
+Note: to run the example locally on your computer you will need to
+download data files from
+[here](https://github.com/cebra-analytics/bsrmap/tree/main/data) and
+copy them into a *data* directory.
+
 ### Step 1: Abiotic suitability
 
 The abiotic suitability for the threat generally refers to environmental
@@ -88,7 +93,9 @@ factors, such as climate. Here we will utilise the *Range bagging*
 example (see <https://github.com/cebra-analytics/bssdm>), which utilised
 global climate data from *WorldClim* (Fick & Hijmans, 2017;
 <http://www.worldclim.org>) and Hawkweed occurrence records from Global
-Biodiversity Information Facility (GBIF, 2026).
+Biodiversity Information Facility (GBIF, 2026). The SDM predicted
+suitability layer may be downloaded from
+[here](https://github.com/cebra-analytics/bsrmap/tree/main/data).
 
 ``` r
 # Range bagging SDM predicted global climate suitability
@@ -102,9 +109,10 @@ terra::plot(sdm_predicted, colNA = "grey",
 
 The area of interest for our risk map is Australia only, which we will
 define using an Australian Albers (equal-area CRS) 1km-grid (resolution)
-template. Note that we will continue to use this template when building
-other components of our risk map so that layers may be consistently
-combined.
+template, which may be downloaded from
+[here](https://github.com/cebra-analytics/bsrmap/tree/main/data). Note
+that we will continue to use this template when building other
+components of our risk map so that layers may be consistently combined.
 
 ``` r
 # Area of interest: Australian Albers CRS 1km-grid template
@@ -255,6 +263,8 @@ pertaining to the distribution of fertiliser use across Australian
 Natural Resource Management (NRM) regions (Australian Bureau of
 Statistics, 2016-17). This data was collated and transformed into
 shape-file layers by CEBRA (as described in Camac et al., 2020). The
+collated fertiliser data may be downloaded from
+[here](https://github.com/cebra-analytics/bsrmap/tree/main/data). The
 fertiliser data values for each NRM can distributed via our
 *distribute_features* function across an agricultural land-use raster
 layer, again calculated via our *aggregate_categories* using Catchment
@@ -323,7 +333,10 @@ distributed within 500 km. The resultant spatially-weighted layer can
 then used in our *pathway_likelihood* function to spatially distribute
 region-wide arrival likelihood estimates, which are generated within the
 function using estimated threat border leakage and establishment
-viability parameters (95% confidence intervals) for the pathway.
+viability parameters (95% confidence intervals) for the pathway. The
+tourist accommodation distribution layer and airport location data may
+be downloaded from
+[here](https://github.com/cebra-analytics/bsrmap/tree/main/data).
 
 ``` r
 # Conform the tourist accommodation distribution layer to template
@@ -365,13 +378,15 @@ terra::plot(log(tourists_likelihood + 1e-7, base = 10), colNA = "grey",
 
 Arrivals via mail can be estimated using data pertaining to the
 distribution of human population in Australia (Australian Bureau of
-Statistics, 2024-25). We firstly conform this layer to our area of
-interest template via our *conform_layer* function. The resultant
-spatially-weighted layer can then used in our *pathway_likelihood*
-function to spatially distribute region-wide arrival likelihood
-estimates, which are generated within the function using estimated
-threat border leakage and establishment viability parameters (95%
-confidence intervals) for the pathway.
+Statistics, 2024-25). The 2025 Australian population layer may be
+downloaded from
+[here](https://github.com/cebra-analytics/bsrmap/tree/main/data). We
+firstly conform this layer to our area of interest template via our
+*conform_layer* function. The resultant spatially-weighted layer can
+then used in our *pathway_likelihood* function to spatially distribute
+region-wide arrival likelihood estimates, which are generated within the
+function using estimated threat border leakage and establishment
+viability parameters (95% confidence intervals) for the pathway.
 
 ``` r
 # Conform the human population distribution layer to template
@@ -412,9 +427,9 @@ p_1 = agriculture_likelihood[cell][,1]
 p_2 = tourists_likelihood[cell][,1]
 p_3 = mail_likelihood[cell][,1]
 1 - (1 - p_1)*(1 - p_2)*(1 - p_3)
-#> [1] 0.0001654734
+#> [1] 0.0001661587
 p_1 + p_2 + p_3
-#> [1] 0.0001654749
+#> [1] 0.00016616
 ```
 
 Let’s now calculate the overall arrival likelihood layer.
@@ -427,7 +442,7 @@ arrival_likelihood <- bsrmap::arrival_likelihood(
                    mail_likelihood)),
   use_fun = "union")
 arrival_likelihood[cell][,1] # compare with "union" example
-#> [1] 0.0001654734
+#> [1] 0.0001661587
 terra::plot(log(arrival_likelihood + 1e-9, base = 10), colNA = "grey",
             main = "Arrival likelihood (log)")
 ```
@@ -454,6 +469,12 @@ terra::plot(log(establishment_likelihood + 1e-12, base = 10), colNA = "grey",
 ```
 
 <img src="man/figures/README-example_6-1.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+terra::writeRaster(establishment_likelihood,
+                   filename = "establishment_likelihood.tif",
+                   gdal = c("COMPRESS=DEFLATE", "TILED=YES"))
+```
 
 ## References
 
@@ -497,15 +518,18 @@ Melbourne*.
 
 Camac, J. S. (2024). ’Detect: Designing post-border surveillance
 schemes. In Hester et al. (Eds.), Biosecurity: A Systems Perspective.
-*Taylor & Francis*. [doi:10.1201/9781003253204](https://doi.org/10.1201/9781003253204)
+*Taylor & Francis*.
+[doi:10.1201/9781003253204](https://doi.org/10.1201/9781003253204)
 
 Drake, J. M. (2015). ‘Range bagging: a new method for ecological niche
 modelling from presence-only data’. *Journal of the Royal Society
-Interface*, 12(107), 20150086. [doi:10.1098/rsif.2015.0086](https://doi.org/10.1098/rsif.2015.0086)
+Interface*, 12(107), 20150086.
+[doi:10.1098/rsif.2015.0086](https://doi.org/10.1098/rsif.2015.0086)
 
 Fick, S. E., Hijmans, R. J. (2017). ‘WorldClim 2: new 1-km spatial
 resolution climate surfaces for global land areas’. *International
-Journal of Climatology*, 37, 4302–4315. [doi:10.1002/joc.5086](https://doi.org/10.1002/joc.5086)
+Journal of Climatology*, 37, 4302–4315.
+[doi:10.1002/joc.5086](https://doi.org/10.1002/joc.5086)
 
 GBIF.org (04 May 2026) ‘GBIF Occurrence Download’.
 [doi:10.15468/dl.q6q6fk](https://doi.org/10.15468/dl.q6q6fk)

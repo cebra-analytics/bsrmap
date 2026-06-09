@@ -52,9 +52,11 @@ remotes::install_github("cebra-analytics/bsrmap")
 
 The following example generates the establishment likelihood for a Hawkweed species (*Hieracium pilosella*), an exotic weed for Australia. We build the core components of our risk map at each step.
 
+Note: to run the example locally on your computer you will need to download data files from [here](https://github.com/cebra-analytics/bsrmap/tree/main/data) and copy them into a *data* directory.
+
 ### Step 1: Abiotic suitability
 
-The abiotic suitability for the threat generally refers to environmental factors, such as climate. Here we will utilise the *Range bagging* (Drake, 2015) SDM predicted climate suitability from our *bssdm* package example (see <https://github.com/cebra-analytics/bssdm>), which utilised global climate data from *WorldClim* (Fick & Hijmans, 2017; <http://www.worldclim.org>) and Hawkweed occurrence records from Global Biodiversity Information Facility (GBIF, 2026).
+The abiotic suitability for the threat generally refers to environmental factors, such as climate. Here we will utilise the *Range bagging* (Drake, 2015) SDM predicted climate suitability from our *bssdm* package example (see <https://github.com/cebra-analytics/bssdm>), which utilised global climate data from *WorldClim* (Fick & Hijmans, 2017; <http://www.worldclim.org>) and Hawkweed occurrence records from Global Biodiversity Information Facility (GBIF, 2026). The SDM predicted suitability layer may be downloaded from [here](https://github.com/cebra-analytics/bsrmap/tree/main/data).
 
 ```{r example_1_1, message = FALSE, fig.align = "center"}
 # Range bagging SDM predicted global climate suitability
@@ -64,7 +66,7 @@ terra::plot(sdm_predicted, colNA = "grey",
             xlab = "Longitude (degrees)", ylab = "Latitude (degrees)")
 ```
 
-The area of interest for our risk map is Australia only, which we will define using an Australian Albers (equal-area CRS) 1km-grid (resolution) template. Note that we will continue to use this template when building other components of our risk map so that layers may be consistently combined.
+The area of interest for our risk map is Australia only, which we will define using an Australian Albers (equal-area CRS) 1km-grid (resolution) template, which may be downloaded from [here](https://github.com/cebra-analytics/bsrmap/tree/main/data). Note that we will continue to use this template when building other components of our risk map so that layers may be consistently combined.
 
 ```{r example_1_2, message = FALSE, fig.align = "center"}
 # Area of interest: Australian Albers CRS 1km-grid template
@@ -156,7 +158,7 @@ The likelihood of the threat arriving in area of interest via one or more pathwa
 
 #### Agricultural products pathway
 
-Arrivals via agricultural products can be estimated using data pertaining to the distribution of fertiliser use across Australian Natural Resource Management (NRM) regions (Australian Bureau of Statistics, 2016-17). This data was collated and transformed into shape-file layers by CEBRA (as described in Camac et al., 2020). The fertiliser data values for each NRM can distributed via our *distribute_features* function across an agricultural land-use raster layer, again calculated via our *aggregate_categories* using Catchment Scale Land Use of Australia (ABARES, 2024) raster layers. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
+Arrivals via agricultural products can be estimated using data pertaining to the distribution of fertiliser use across Australian Natural Resource Management (NRM) regions (Australian Bureau of Statistics, 2016-17). This data was collated and transformed into shape-file layers by CEBRA (as described in Camac et al., 2020). The collated fertiliser data may be downloaded from [here](https://github.com/cebra-analytics/bsrmap/tree/main/data). The fertiliser data values for each NRM can distributed via our *distribute_features* function across an agricultural land-use raster layer, again calculated via our *aggregate_categories* using Catchment Scale Land Use of Australia (ABARES, 2024) raster layers. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
 
 ```{r example_4_1, message = FALSE, fig.align = "center"}
 # Aggregate and binarise agricultural land use categories
@@ -192,7 +194,7 @@ terra::plot(log(agriculture_likelihood + 1e-9, base = 10), colNA = "grey",
 
 #### Tourists pathway
 
-Arrivals via tourists can be estimated using data pertaining to the distribution of tourist accommodation (Australian Bureau of Statistics, 2015-16). The distribution data was collated and transformed into a raster layer by CEBRA (as described in Camac et al., 2020). We firstly conform this layer to our area of interest template via our *conform_layer* function. We then weight the distribution of tourist accommodation by their distance from major airports via our *distance_weight_layer* function, such that 50% of the likelihood is distributed within 500 km. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
+Arrivals via tourists can be estimated using data pertaining to the distribution of tourist accommodation (Australian Bureau of Statistics, 2015-16). The distribution data was collated and transformed into a raster layer by CEBRA (as described in Camac et al., 2020). We firstly conform this layer to our area of interest template via our *conform_layer* function. We then weight the distribution of tourist accommodation by their distance from major airports via our *distance_weight_layer* function, such that 50% of the likelihood is distributed within 500 km. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway. The tourist accommodation distribution layer and airport location data may be downloaded from [here](https://github.com/cebra-analytics/bsrmap/tree/main/data).
 
 ```{r example_4_2, message = FALSE, fig.align = "center"}
 # Conform the tourist accommodation distribution layer to template
@@ -220,7 +222,7 @@ terra::plot(log(tourists_likelihood + 1e-7, base = 10), colNA = "grey",
 
 #### Mail pathway
 
-Arrivals via mail can be estimated using data pertaining to the distribution of human population in Australia (Australian Bureau of Statistics, 2024-25). We firstly conform this layer to our area of interest template via our *conform_layer* function. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
+Arrivals via mail can be estimated using data pertaining to the distribution of human population in Australia (Australian Bureau of Statistics, 2024-25). The 2025 Australian population layer may be downloaded from [here](https://github.com/cebra-analytics/bsrmap/tree/main/data). We firstly conform this layer to our area of interest template via our *conform_layer* function. The resultant spatially-weighted layer can then used in our *pathway_likelihood* function to spatially distribute region-wide arrival likelihood estimates, which are generated within the function using estimated threat border leakage and establishment viability parameters (95% confidence intervals) for the pathway.
 
 ```{r example_4_3, message = FALSE, fig.align = "center"}
 # Conform the human population distribution layer to template
@@ -276,6 +278,9 @@ establishment_likelihood <- bsrmap::establishment_likelihood(
   use_fun = "prod")
 terra::plot(log(establishment_likelihood + 1e-12, base = 10), colNA = "grey",
             main = "Establishment likelihood (log)")
+terra::writeRaster(establishment_likelihood,
+                   filename = "establishment_likelihood.tif",
+                   gdal = c("COMPRESS=DEFLATE", "TILED=YES"))
 ```
 
 ## References
