@@ -15,7 +15,8 @@
 #'   \code{1 - prod(1 - x)}.
 #' @param use_method Use method when projecting and/or re-sampling. One of
 #'   \code{"auto"} (uses "near" for categorical rasters else "bilinear"),
-#'   \code{"bilinear"}, or \code{"near"}. Default = \code{"auto"}.
+#'   \code{"bilinear"}, \code{"near"}, or \code{"sum"}.
+#'   Default = \code{"auto"}.
 #' @param platform Logical indicating function is to be run in a platform
 #'   environment requiring workaround code. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
@@ -32,7 +33,7 @@
 aggregate_layer <- function(x, y,
                             use_fun = c("mean", "max", "min", "median",
                                         "sum", "modal", "union"),
-                            use_method = c("auto", "bilinear", "near"),
+                            use_method = c("auto", "bilinear", "near", "sum"),
                             platform = FALSE,
                             filename = "", ...) {
   UseMethod("aggregate_layer")
@@ -43,7 +44,8 @@ aggregate_layer <- function(x, y,
 aggregate_layer.Raster <- function(x, y,
                                    use_fun = c("mean", "max", "min", "median",
                                                "sum", "modal", "union"),
-                                   use_method = c("auto", "bilinear", "near"),
+                                   use_method = c("auto", "bilinear", "near",
+                                                  "sum"),
                                    platform = FALSE,
                                    filename = "", ...) {
   # Call the terra version of the function
@@ -60,13 +62,18 @@ aggregate_layer.SpatRaster <- function(x, y,
                                        use_fun = c("mean", "max", "min",
                                                    "median", "sum", "modal",
                                                    "union"),
-                                       use_method = c("auto", "bilinear", "near"),
+                                       use_method = c("auto", "bilinear",
+                                                      "near", "sum"),
                                        platform = FALSE,
                                        filename = "", ...) {
   # Convert y to terra
   if (class(y)[1] %in% c("Raster", "RasterStack", "RasterBrick")) {
     y <- terra::rast(y)
   }
+
+  # Aggregation function and project/re-sample method
+  use_fun <- match.arg(use_fun)
+  use_method <- match.arg(use_method)
 
   # Make CRS equal when equivalent but not equal
   if (equivalent_crs(x, y) && terra::crs(x) != terra::crs(y)) {
@@ -99,7 +106,6 @@ aggregate_layer.SpatRaster <- function(x, y,
     }
 
     # Aggregate
-    use_fun <- match.arg(use_fun)
     if (use_fun == "union") {
       use_fun <- function(x_vect, na.rm = TRUE) {
         1 - prod(1 - x_vect, na.rm = na.rm)
@@ -113,7 +119,6 @@ aggregate_layer.SpatRaster <- function(x, y,
   }
 
   # Re-sample when the resolution, CRS or extent are not equal
-  use_method <- match.arg(use_method)
   if (any(terra::res(x) != terra::res(y)) || !equivalent_crs(x, y) ||
       terra::ext(x) != terra::ext(y)) {
     if (!equivalent_crs(x, y)) {

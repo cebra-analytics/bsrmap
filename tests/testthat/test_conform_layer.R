@@ -56,6 +56,17 @@ test_that("conforms extent and resolution", {
   expect_equal(new_layer[idx][,1], adj_values)
 })
 
+test_that("conforms from fine to coarse via sum (e.g. initial layer)", {
+  TEST_DIRECTORY <- test_path("test_inputs")
+  fine_rast <- terra::rast(file.path(TEST_DIRECTORY, "greater_melb.tif"))*0
+  fine_rast[5922] <- 10
+  course_rast <- terra::rast(file.path(TEST_DIRECTORY, "abiotic.tif"))*0
+  new_layer <- expect_silent(suppressMessages(
+    conform_layer(fine_rast, course_rast, use_aggr_fun = "sum",
+                  use_method = "sum")))
+  expect_equal(round(terra::global(new_layer, "sum", na.rm = TRUE)[,1], 6), 10)
+})
+
 test_that("conforms to NA template", {
   TEST_DIRECTORY <- test_path("test_inputs")
   template_rast <- terra::rast(file.path(TEST_DIRECTORY,

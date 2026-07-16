@@ -26,7 +26,8 @@
 #'   Default = \code{"mean"}.
 #' @param use_method Use method when projecting and/or re-sampling. One of
 #'   \code{"auto"} (uses "near" for categorical rasters else "bilinear"),
-#'   \code{"bilinear"}, or \code{"near"}. Default = \code{"auto"}.
+#'   \code{"bilinear"}, \code{"near"}, or \code{"sum"}.
+#'   Default = \code{"auto"}.
 #' @param platform Logical indicating function is to be run in a platform
 #'   environment requiring workaround code. Default = \code{FALSE}.
 #' @param filename Optional file writing path (character).
@@ -48,7 +49,7 @@ conform_layer <- function(x, y,
                           na_strategy = c("zero", "nearest", "retain"),
                           use_aggr_fun = c("mean", "max", "min", "median",
                                            "sum", "modal", "union"),
-                          use_method = c("auto", "bilinear", "near"),
+                          use_method = c("auto", "bilinear", "near", "sum"),
                           platform = FALSE,
                           filename = "", ...) {
   UseMethod("conform_layer")
@@ -63,7 +64,8 @@ conform_layer.Raster <- function(x, y,
                                  use_aggr_fun = c("mean", "max", "min",
                                                   "median", "sum", "modal",
                                                   "union"),
-                                 use_method = c("auto", "bilinear", "near"),
+                                 use_method = c("auto", "bilinear", "near",
+                                                "sum"),
                                  platform = FALSE,
                                  filename = "", ...) {
 
@@ -89,7 +91,7 @@ conform_layer.SpatRaster <- function(x, y,
                                                       "median", "sum", "modal",
                                                       "union"),
                                      use_method = c("auto", "bilinear",
-                                                    "near"),
+                                                    "near", "sum"),
                                      platform = FALSE,
                                      filename = "", ...) {
   # Convert y to terra
