@@ -3,6 +3,12 @@
 
 # bsrmap: Biosecurity Risk Mapping
 
+> **Archived.** This package repository is archived and has been
+> migrated to GitLab:
+> <https://gitlab.com/biosecuritycommons/packages/bsrmap>. The content
+> below may be outdated; please refer to the GitLab repository for the
+> current documentation.
+
 <!-- badges: start -->
 
 [![Last
@@ -427,9 +433,9 @@ p_1 = agriculture_likelihood[cell][,1]
 p_2 = tourists_likelihood[cell][,1]
 p_3 = mail_likelihood[cell][,1]
 1 - (1 - p_1)*(1 - p_2)*(1 - p_3)
-#> [1] 0.0001661587
+#> [1] 0.0001653408
 p_1 + p_2 + p_3
-#> [1] 0.00016616
+#> [1] 0.0001653422
 ```
 
 Let’s now calculate the overall arrival likelihood layer.
@@ -442,7 +448,7 @@ arrival_likelihood <- bsrmap::arrival_likelihood(
                    mail_likelihood)),
   use_fun = "union")
 arrival_likelihood[cell][,1] # compare with "union" example
-#> [1] 0.0001661587
+#> [1] 0.0001653408
 terra::plot(log(arrival_likelihood + 1e-9, base = 10), colNA = "grey",
             main = "Arrival likelihood (log)")
 ```
